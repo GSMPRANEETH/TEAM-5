@@ -1,4 +1,5 @@
 from llm_helper import llm
+from llm1.prompt_templates import PERSONALITY_PROMPT
 from utils.parser import safe_parse
 
 def personality_agent(state):

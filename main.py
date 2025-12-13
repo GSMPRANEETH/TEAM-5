@@ -1,15 +1,19 @@
 """
 Speech Analysis Pipeline - Main Entry Point
-Runs the complete workflow: Record → Preprocess → Transcribe → Analyze
+Runs the complete workflow: Record → Preprocess → Transcribe → Analyze → AI Report
 """
 
 import sounddevice as sd
 import soundfile as sf
 import json
 import librosa
+
 from speech_to_text import transcribe_audio
 from speech_features import analyze_speech
 from agent import run_agents
+
+# 🔹 STEP-5 IMPORT
+from llm1.report_generator import generate_final_report
 
 # Configuration
 DURATION = 45        # Recording duration in seconds
@@ -46,16 +50,11 @@ def preprocess_audio(input_path=RAW_AUDIO, output_path=CLEAN_AUDIO):
     print("🔧 STEP 2: PREPROCESSING AUDIO")
     print("="*50)
 
-    # Load audio
     y, sr = librosa.load(input_path, sr=16000, mono=True)
 
-    # Normalize volume
     y = librosa.util.normalize(y)
-
-    # Remove silence
     y_trimmed, _ = librosa.effects.trim(y, top_db=20)
 
-    # Save cleaned audio
     sf.write(output_path, y_trimmed, sr)
 
     duration = librosa.get_duration(y=y_trimmed, sr=sr)
@@ -66,7 +65,8 @@ def preprocess_audio(input_path=RAW_AUDIO, output_path=CLEAN_AUDIO):
 
 
 def run_pipeline(audio_file=CLEAN_AUDIO):
-    """Run speech-to-text and analysis"""
+    """Run speech-to-text, analysis, agents, and final AI report"""
+
     print("\n" + "="*50)
     print("🔄 STEP 3: SPEECH-TO-TEXT TRANSCRIPTION")
     print("="*50)
@@ -94,22 +94,21 @@ def run_pipeline(audio_file=CLEAN_AUDIO):
     print(f"  Overall Score: {score}")
     print(f"  Confidence Level: {label}")
 
-    print("\n" + "="*50)
-    print("✅ PIPELINE COMPLETE!")
-    print("="*50 + "\n")
-
-    # Assemble output state and run agent orchestration
+    # 🔹 Prepare agent input
     pipeline_state = {
         "transcript": data["transcript"],
         "audio_features": {
             "speech_rate": results.get("speech_rate", round(wpm)),
             "pitch_variance": results.get("pitch_variance"),
-            "pause_ratio": results.get("pause_ratio", round(avg_pause / (wpm/60) if wpm else 0, 2)),
+            "pause_ratio": results.get(
+                "pause_ratio",
+                round(avg_pause / (wpm / 60) if wpm else 0, 2)
+            ),
             "energy_level": results.get("energy_level")
         }
     }
 
-    print("\n🧠 Running agents with pipeline output...\n")
+    print("\n🧠 STEP 4: RUNNING AGENTS\n")
     agent_results = run_agents(pipeline_state)
 
     print("\n📌 Communication Analysis")
@@ -121,6 +120,21 @@ def run_pipeline(audio_file=CLEAN_AUDIO):
     print("\n📌 Personality Mapping")
     print(json.dumps(agent_results.get("personality_analysis"), indent=2))
 
+    # ==================================================
+    # 🔥 STEP 5: LLM-BASED FINAL AI REPORT
+    # ==================================================
+    print("\n" + "="*50)
+    print("✨ STEP 5: FINAL AI PERSONALITY REPORT")
+    print("="*50 + "\n")
+
+    final_report = generate_final_report(agent_results)
+
+    print(final_report)
+
+    print("\n" + "="*50)
+    print("✅ PIPELINE COMPLETE!")
+    print("="*50 + "\n")
+
     return pipeline_state
 
 
@@ -130,13 +144,8 @@ if __name__ == "__main__":
     print("="*50)
 
     try:
-        # Step 1: Record audio
         record_audio()
-
-        # Step 2: Preprocess audio
         preprocess_audio()
-
-        # Step 3 & 4: Transcribe and analyze
         run_pipeline()
 
     except KeyboardInterrupt:
