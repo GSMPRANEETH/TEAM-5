@@ -3,6 +3,12 @@ Speech Analysis Pipeline - Main Entry Point
 Runs the complete workflow: Record → Preprocess → Transcribe → Analyze → AI Report
 """
 
+# Suppress TorchAudio deprecation warnings
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="torchaudio")
+warnings.filterwarnings("ignore", message=".*torchaudio.*deprecated.*")
+warnings.filterwarnings("ignore", message=".*sox_effects.*")
+
 import sounddevice as sd
 import soundfile as sf
 import json
