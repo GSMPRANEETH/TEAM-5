@@ -1,10 +1,8 @@
 # Core ML
 torch>=2.0.0
-torchaudio>=2.0.0
 
 # Speech-to-Text + Alignment
 faster-whisper>=1.0.0
-whisperx>=3.1.0
 
 # Audio processing
 librosa>=0.10.0
@@ -13,10 +11,10 @@ sounddevice>=0.4.6
 
 # Numerical computing
 numpy>=1.23.0
-scipy>=1.9.0
 
-# LLM + utilities (used by agents)
-llm>=0.2.0
-transformers>=4.30.0
-accelerate>=0.20.3
-sentencepiece>=0.1.98
+# Speech features
+opensmile
+pyannote.audio
+
+# LLM
+langchain-community
