@@ -16,3 +16,13 @@ venv/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# ChromaDB persistence
+chroma_db/
+*.chroma
+
+# Model cache directories
+.cache/
+models/
+hub/
+torch_cache/

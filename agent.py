@@ -43,21 +43,12 @@ def run_agents(state):
         person_res = personality_agent(state_with_comm_conf)
         person = person_res.get("personality_analysis") if isinstance(person_res, dict) else None
 
-        combined = {}
-        if comm is not None:
-            combined["communication_analysis"] = comm
-        else:
-            combined["communication_analysis"] = comm_res
-
-        if conf is not None:
-            combined["confidence_emotion_analysis"] = conf
-        else:
-            combined["confidence_emotion_analysis"] = conf_res
-
-        if person is not None:
-            combined["personality_analysis"] = person
-        else:
-            combined["personality_analysis"] = person_res
+        # Build combined results, preferring extracted values over raw responses
+        combined = {
+            "communication_analysis": comm if comm is not None else comm_res,
+            "confidence_emotion_analysis": conf if conf is not None else conf_res,
+            "personality_analysis": person if person is not None else person_res
+        }
 
         return combined
 

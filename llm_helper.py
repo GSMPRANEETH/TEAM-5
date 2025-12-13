@@ -7,7 +7,6 @@ it will load the local file `llm/local_llm.py` directly.
 import importlib
 import importlib.util
 import os
-import sys
 
 
 def _load_local_llm_from_file():

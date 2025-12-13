@@ -18,9 +18,6 @@ from speech_to_text import transcribe_audio
 from speech_features import analyze_speech
 from agent import run_agents
 
-# 🔹 STEP-5 IMPORT
-from llm1.report_generator import generate_final_report
-
 # Configuration
 DURATION = 45        # Recording duration in seconds
 SAMPLE_RATE = 16000  # Required for Whisper
@@ -127,13 +124,12 @@ def run_pipeline(audio_file=CLEAN_AUDIO):
     print(json.dumps(agent_results.get("personality_analysis"), indent=2))
 
     # ==================================================
-    # 🔥 STEP 5: LLM-BASED FINAL AI REPORT
+    # STEP 5: LLM-BASED FINAL AI REPORT
     # ==================================================
     print("\n" + "="*50)
     print("✨ STEP 5: FINAL AI PERSONALITY REPORT")
     print("="*50 + "\n")
 
-    #final_report = generate_final_report(agent_results)
     final_report = rag_enhanced_report(agent_results)
 
     print(final_report)
