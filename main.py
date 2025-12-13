@@ -7,7 +7,7 @@ import sounddevice as sd
 import soundfile as sf
 import json
 import librosa
-
+from rag.rag_pipeline import rag_enhanced_report
 from speech_to_text import transcribe_audio
 from speech_features import analyze_speech
 from agent import run_agents
@@ -127,7 +127,8 @@ def run_pipeline(audio_file=CLEAN_AUDIO):
     print("✨ STEP 5: FINAL AI PERSONALITY REPORT")
     print("="*50 + "\n")
 
-    final_report = generate_final_report(agent_results)
+    #final_report = generate_final_report(agent_results)
+    final_report = rag_enhanced_report(agent_results)
 
     print(final_report)
 
