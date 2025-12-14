@@ -96,7 +96,7 @@ Removed from `src/index.css`:
 
 ### Actions Taken
 
-#### 1. Removed Duplicate/Unused Files (7 files, ~600 lines)
+#### 1. Removed Duplicate/Unused Files (6 files actually deleted, ~470 lines)
 
 **main.py** (161 lines)
 - Initially identified as duplicate of link.py functionality
@@ -104,6 +104,7 @@ Removed from `src/index.css`:
 - Was temporarily removed in commit 7efa06a but restored during merge from main branch
 - Currently present in repository but not actively used by the pipeline
 - Never imported by any module
+- **Status: NOT DELETED in this PR** (restored via merge)
 
 **pipeline.py** (58 lines)
 - Replaced by link.py
@@ -227,7 +228,7 @@ CHUNK_OVERLAP       # Not used anywhere
 
 | Category | Metric | Count |
 |----------|--------|-------|
-| **Files** | Total Removed | 9 |
+| **Files** | Total Removed | 8 |
 | **Code** | Lines Deleted | ~720+ |
 | **Quality** | Bugs Fixed | 2 |
 | | Linting Errors Fixed | 2 |
@@ -283,7 +284,6 @@ python3 -m py_compile llm1/local_llm.py   # ✅ PASS
 ### Backend Changes
 | File | Action | Lines Changed |
 |------|--------|---------------|
-| `main.py` | ❌ DELETED | -161 |
 | `pipeline.py` | ❌ DELETED | -58 |
 | `preprocess_audio.py` | ❌ DELETED | -28 |
 | `test_llm_step5.py` | ❌ DELETED | -7 |
@@ -297,7 +297,9 @@ python3 -m py_compile llm1/local_llm.py   # ✅ PASS
 | `rag/retriever.py` | ✏️ MODIFIED | -1 |
 | `rag/config.py` | ✏️ MODIFIED | -8 |
 
-**Total**: 9 deleted, 8 modified
+**Total**: 8 deleted (6 in commits + llm/ directory + build_index.py), 8 modified
+
+**Note**: main.py was temporarily deleted in commit 7efa06a but restored during merge from main branch
 
 ---
 
@@ -335,7 +337,7 @@ python3 -m py_compile *.py
 
 This comprehensive code quality optimization successfully:
 - ✅ Removed **720+ lines** of unused code
-- ✅ Deleted **9 unnecessary files**
+- ✅ Deleted **8 unnecessary files** (6 Python files + llm/ directory + rag/build_index.py)
 - ✅ Fixed **2 critical bugs** (circular import, wrong module reference)
 - ✅ Improved **type safety** with 4 new TypeScript interfaces
 - ✅ Achieved **zero security vulnerabilities**

@@ -1,5 +1,5 @@
 // Communication analysis output structure
-// Note: LLM may return additional fields beyond these known properties
+// TypeScript will only type-check these known properties
 export interface CommunicationAnalysis {
   communication_score?: number;
   clarity_level?: string;
@@ -12,7 +12,7 @@ export interface CommunicationAnalysis {
 }
 
 // Confidence analysis output structure
-// Note: LLM may return additional fields beyond these known properties
+// TypeScript will only type-check these known properties
 export interface ConfidenceAnalysis {
   confidence_score?: number;
   confidence_level?: string;
@@ -24,7 +24,7 @@ export interface ConfidenceAnalysis {
 }
 
 // Personality analysis output structure
-// Note: LLM may return additional fields beyond these known properties
+// TypeScript will only type-check these known properties
 export interface PersonalityAnalysis {
   personality_type?: string;
   interaction_style?: string;
