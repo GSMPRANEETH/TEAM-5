@@ -23,10 +23,10 @@ vad_model, vad_utils = torch.hub.load(
 
 (
     get_speech_timestamps,
-    _save_audio,
+    save_audio,
     read_audio,
-    _VADIterator,
-    _collect_chunks
+    VADIterator,
+    collect_chunks
 ) = vad_utils
 
 
