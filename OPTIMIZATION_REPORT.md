@@ -96,7 +96,7 @@ Removed from `src/index.css`:
 
 ### Actions Taken
 
-#### 1. Removed Duplicate/Unused Files (6 files actually deleted, ~470 lines)
+#### 1. Removed Backend Files (6 files, ~470 lines)
 
 **main.py** (161 lines)
 - Initially identified as duplicate of link.py functionality
@@ -242,7 +242,7 @@ CHUNK_OVERLAP       # Not used anywhere
 ✅ **Bug Fixes**: 2 critical bugs resolved  
 ✅ **Security**: 0 vulnerabilities (CodeQL scan)  
 📊 **Lines Removed**: ~630 lines  
-📊 **Files Removed**: 7 files + 1 directory
+📊 **Files Removed**: 6 backend files (including llm/ directory removal)
 
 ---
 
@@ -320,7 +320,7 @@ python3 -m py_compile llm1/local_llm.py   # ✅ PASS
 | `rag/retriever.py` | ✏️ MODIFIED | -1 |
 | `rag/config.py` | ✏️ MODIFIED | -8 |
 
-**Total**: 8 deleted (6 in commits + llm/ directory + build_index.py), 8 modified
+**Total**: 8 deleted (2 frontend + 6 backend), 8 modified
 
 **Note**: main.py was temporarily deleted in commit 7efa06a but restored during merge from main branch
 
