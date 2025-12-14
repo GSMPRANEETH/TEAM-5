@@ -65,5 +65,5 @@ export interface AnalysisResult {
   confidence_label: string;
   final_report: string;
   speech_metrics: SpeechMetrics;
-  agent_results: AgentResults;
+  agent_results: Record<string, AgentResult | string>;
 }
