@@ -1,5 +1,4 @@
 import librosa
-import numpy as np
 import opensmile
 import torch
 
@@ -24,10 +23,10 @@ vad_model, vad_utils = torch.hub.load(
 
 (
     get_speech_timestamps,
-    save_audio,
+    _save_audio,
     read_audio,
-    VADIterator,
-    collect_chunks
+    _VADIterator,
+    _collect_chunks
 ) = vad_utils
 
 
