@@ -9,7 +9,6 @@ warnings.filterwarnings("ignore", category=UserWarning, module="torchaudio")
 warnings.filterwarnings("ignore", message=".*torchaudio.*deprecated.*")
 warnings.filterwarnings("ignore", message=".*sox_effects.*")
 
-import sounddevice as sd
 import soundfile as sf
 import json
 import librosa
@@ -151,7 +150,6 @@ if __name__ == "__main__":
     print("="*50)
 
     try:
-        record_audio()
         preprocess_audio()
         run_pipeline()
 
