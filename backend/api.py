@@ -20,13 +20,15 @@ UPLOAD_DIR = "uploads"
 import os
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+# backend/api.py
+
+from fastapi import UploadFile, File
+from record_audio import record_audio
+from link import run_pipeline
+
 @app.post("/analyze")
 async def analyze_audio(file: UploadFile = File(...)):
-    file_id = str(uuid.uuid4())
-    file_path = f"{UPLOAD_DIR}/{file_id}.wav"
-
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-
-    result = run_pipeline(file_path)
+    audio_path = record_audio(file)
+    result = run_pipeline(audio_path)
     return result
+

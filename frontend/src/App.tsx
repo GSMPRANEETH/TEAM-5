@@ -1,18 +1,20 @@
+import { useState } from "react";
+import AudioRecorder from "./components/AudioRecorder";
+import ResultView from "./components/ResultView";
 import type { AnalysisResult } from "./types/analysis";
 
-export default function ResultView({ data }: { data: AnalysisResult }) {
+function App() {
+  const [result, setResult] = useState<AnalysisResult | null>(null);
+
   return (
-    <div>
-      <h3>Transcript</h3>
-      <p>{data.transcript}</p>
+    <div style={{ padding: "20px" }}>
+      <h2>🎙 AI Speech Personality Analysis</h2>
 
-      <h3>Confidence</h3>
-      <p>
-        {data.confidence_label} ({data.confidence_score})
-      </p>
+      <AudioRecorder onResult={setResult} />
 
-      <h3>Final Personality Report</h3>
-      <p>{data.final_report}</p>
+      {result && <ResultView data={result} />}
     </div>
   );
 }
+
+export default App;
