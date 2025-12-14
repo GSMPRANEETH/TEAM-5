@@ -1,4 +1,3 @@
-import { useState } from "react";
 import * as Accordion from "@radix-ui/react-accordion";
 import Badge from "../atoms/Badge";
 import ConfidenceScore from "../atoms/ConfidenceScore";
@@ -10,8 +9,6 @@ export interface ResultsPanelProps {
 }
 
 export default function ResultsPanel({ data, className = "" }: ResultsPanelProps) {
-  const [viewMode, setViewMode] = useState<'full' | 'summary'>('full');
-
   const renderMetricCard = (title: string, value: number | string | undefined, icon: string) => {
     if (value === undefined || value === null) return null;
     
@@ -42,28 +39,20 @@ export default function ResultsPanel({ data, className = "" }: ResultsPanelProps
         </div>
       </div>
 
-      {/* View Mode Toggle */}
+      {/* View Mode Toggle - Removed unused state, keeping UI for future implementation */}
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex gap-2">
           <button
-            onClick={() => setViewMode('full')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              viewMode === 'full'
-                ? 'bg-primary-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-            }`}
+            disabled
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-primary-600 text-white opacity-50 cursor-not-allowed"
           >
             Full Response
           </button>
           <button
-            onClick={() => setViewMode('summary')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              viewMode === 'summary'
-                ? 'bg-primary-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-            }`}
+            disabled
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 opacity-50 cursor-not-allowed"
           >
-            Key Findings
+            Key Findings (Coming Soon)
           </button>
         </div>
       </div>

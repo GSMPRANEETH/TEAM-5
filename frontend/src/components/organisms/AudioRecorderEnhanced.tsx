@@ -103,19 +103,21 @@ export default function AudioRecorderEnhanced({
       setRecording(false);
       
       try {
-        // Simulate processing stages
+        // Set processing stages to show progress
         setProcessingStage("preprocessing");
-        await new Promise(resolve => setTimeout(resolve, 500));
         
+        // Start the actual analysis
         setProcessingStage("transcribing");
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        setProcessingStage("analyzing");
         const result = await analyzeAudio(file);
         
-        setProcessingStage("complete");
-        onResult(result);
-        setError(null);
+        setProcessingStage("analyzing");
+        
+        // Allow brief display of final stage before showing results
+        setTimeout(() => {
+          setProcessingStage("complete");
+          onResult(result);
+          setError(null);
+        }, 300);
       } catch (err) {
         setError("Analysis failed. Please try again.");
         console.error("Analysis error:", err);

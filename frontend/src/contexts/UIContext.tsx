@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useState } from 'react';
+import { createContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 
 interface UIContextType {
@@ -38,14 +38,14 @@ export function UIProvider({ children }: { children: ReactNode }) {
     setSidebarOpen(prev => !prev);
   };
 
-  // Apply dark mode on mount
-  useState(() => {
+  // Apply dark mode on mount and when it changes
+  useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
-  });
+  }, [darkMode]);
 
   return (
     <UIContext.Provider value={{ darkMode, toggleDarkMode, sidebarOpen, toggleSidebar }}>
