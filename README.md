@@ -577,3 +577,5 @@ For issues and questions:
 ---
 
 **Built with ❤️ by TEAM-5**
+(chatgpt)[https://chatgpt.com/g/g-p-693cf63b3d608191a200ca21f1c5f7e2-tts/project]
+(perplexity)[https://www.perplexity.ai/spaces/tts-1gnsM.HoSV.NHB6HbWS31g#0]
