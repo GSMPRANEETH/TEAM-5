@@ -1,6 +1,6 @@
 """Helper to load the project's LLM implementation robustly.
 
-Attempts to import `llm.local_llm.llm`. If that fails (for example,
+Attempts to import `llm1.local_llm`. If that fails (for example,
 because an installed package named `llm` shadows the local folder),
 it will load the local file `llm1/local_llm.py` directly.
 """

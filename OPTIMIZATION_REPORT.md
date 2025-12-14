@@ -99,8 +99,10 @@ Removed from `src/index.css`:
 #### 1. Removed Duplicate/Unused Files (7 files, ~600 lines)
 
 **main.py** (161 lines)
-- Duplicate of link.py functionality
+- Initially identified as duplicate of link.py functionality
 - Contains preprocessing logic now handled elsewhere
+- Was temporarily removed in commit 7efa06a but restored during merge from main branch
+- Currently present in repository but not actively used by the pipeline
 - Never imported by any module
 
 **pipeline.py** (58 lines)

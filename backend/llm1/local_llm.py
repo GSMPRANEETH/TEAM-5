@@ -80,3 +80,7 @@ def get_llm():
         print("   Using stub LLM for testing...")
         return _StubLLM()
 
+
+# Module-level LLM instance for compatibility with code expecting `llm` attribute
+llm = get_llm()
+
