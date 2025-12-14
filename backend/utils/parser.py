@@ -1,11 +1,24 @@
+"""JSON parsing utilities for LLM outputs with error recovery."""
+
 import json
 import re
+import logging
+from typing import Dict, Any, Union, Optional
+
+logger = logging.getLogger(__name__)
 
 
 def _balance_braces(text: str) -> str:
     """
     Attempt to auto-close missing JSON braces/brackets.
-    Helps when LLM output is truncated.
+    
+    Helps when LLM output is truncated mid-JSON.
+    
+    Args:
+        text: Input text possibly containing incomplete JSON
+        
+    Returns:
+        Text with balanced braces and brackets
     """
     open_curly = text.count("{")
     close_curly = text.count("}")
@@ -18,46 +31,71 @@ def _balance_braces(text: str) -> str:
     return text
 
 
-def safe_parse(s: str):
+def safe_parse(s: Optional[Union[str, dict]]) -> Dict[str, Any]:
     """
-    Robust JSON parser for LLM output.
+    Robust JSON parser for LLM output with multiple recovery strategies.
 
-    Handles:
-    - Markdown code blocks
+    Handles common LLM output issues:
+    - Markdown code blocks (```json ... ```)
     - Extra text before/after JSON
-    - Single quotes
+    - Single quotes instead of double quotes
     - Trailing commas
-    - PARTIAL / TRUNCATED JSON (Ollama issue)
+    - Partial/truncated JSON (common with Ollama)
+    
+    Args:
+        s: LLM output string or dict to parse
+        
+    Returns:
+        Parsed dictionary. On failure, returns dict with 'error' and 'status' keys.
+        
+    Examples:
+        >>> safe_parse('{"score": 85}')
+        {'score': 85}
+        
+        >>> safe_parse('```json\\n{"score": 85}\\n```')
+        {'score': 85}
+        
+        >>> safe_parse("Here's the analysis: {'score': 85, 'level': 'high',}")
+        {'score': 85, 'level': 'high'}
     """
-
+    # Handle None input
     if s is None:
+        logger.warning("Received None input for JSON parsing")
         return {"error": "no response", "status": "failed"}
 
+    # Already a dict - return as-is
     if isinstance(s, dict):
         return s
 
+    # Convert to string
     if not isinstance(s, str):
         s = str(s)
 
     s = s.strip()
 
-    # 1️⃣ Try direct JSON
+    # 1️⃣ Try direct JSON parse
     try:
-        return json.loads(s)
-    except Exception:
-        pass
+        result = json.loads(s)
+        logger.debug("Successfully parsed JSON directly")
+        return result
+    except json.JSONDecodeError:
+        logger.debug("Direct JSON parse failed, trying recovery strategies")
 
     # 2️⃣ Strip markdown code blocks
     code_block = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", s)
     if code_block:
         try:
-            return json.loads(code_block.group(1).strip())
-        except Exception:
+            result = json.loads(code_block.group(1).strip())
+            logger.debug("Successfully parsed JSON from markdown code block")
+            return result
+        except json.JSONDecodeError:
             s = code_block.group(1).strip()
+            logger.debug("Code block found but invalid JSON, continuing recovery")
 
     # 3️⃣ Extract probable JSON region
     start = s.find("{")
     if start == -1:
+        logger.warning("No JSON object found in input")
         return {
             "raw": s[:500],
             "error": "No JSON object found",
@@ -68,18 +106,23 @@ def safe_parse(s: str):
 
     # 4️⃣ Auto-fix common issues
     candidate = _balance_braces(candidate)
+    logger.debug("Balanced braces/brackets")
 
-    # Replace single quotes carefully
+    # Replace single quotes carefully (not after backslash)
     candidate = re.sub(r"(?<!\\)'", '"', candidate)
 
     # Remove trailing commas
     candidate = re.sub(r",\s*}", "}", candidate)
     candidate = re.sub(r",\s*]", "]", candidate)
+    logger.debug("Fixed common JSON issues (quotes, trailing commas)")
 
     # 5️⃣ Final parse attempt
     try:
-        return json.loads(candidate)
-    except Exception as e:
+        result = json.loads(candidate)
+        logger.info("Successfully parsed JSON after recovery")
+        return result
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON parse failed after all recovery attempts: {e}")
         return {
             "raw": candidate[:500],
             "error": f"JSON parse failed after recovery: {str(e)}",

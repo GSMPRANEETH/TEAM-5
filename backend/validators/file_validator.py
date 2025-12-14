@@ -1,0 +1,142 @@
+"""File validation utilities for API input security."""
+
+from fastapi import UploadFile, HTTPException
+from typing import Set
+import os
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Allowed MIME types for audio files
+ALLOWED_AUDIO_TYPES: Set[str] = {
+    "audio/wav",
+    "audio/mpeg",
+    "audio/mp3",
+    "audio/webm",
+    "audio/ogg",
+    "audio/x-wav",
+    "audio/wave",
+}
+
+# Maximum file size (50MB)
+MAX_FILE_SIZE_MB = 50
+MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+
+# Minimum file size (1KB - to prevent empty files)
+MIN_FILE_SIZE_BYTES = 1024
+
+
+async def validate_audio_file(file: UploadFile) -> None:
+    """
+    Validate uploaded audio file for security and format compliance.
+    
+    Performs multiple validation checks:
+    - Content type validation
+    - File size validation
+    - Filename sanitization
+    - Empty file detection
+    
+    Args:
+        file: The uploaded file from FastAPI
+        
+    Raises:
+        HTTPException: If validation fails with appropriate status code and message
+    """
+    # Check if file exists
+    if not file:
+        logger.warning("File upload attempted with no file")
+        raise HTTPException(
+            status_code=400,
+            detail="No file provided"
+        )
+    
+    # Check content type
+    if file.content_type not in ALLOWED_AUDIO_TYPES:
+        logger.warning(f"Invalid file type uploaded: {file.content_type}")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file type '{file.content_type}'. Allowed types: {', '.join(ALLOWED_AUDIO_TYPES)}"
+        )
+    
+    # Check filename exists
+    if not file.filename:
+        logger.warning("File upload attempted with no filename")
+        raise HTTPException(
+            status_code=400,
+            detail="No filename provided"
+        )
+    
+    # Sanitize filename (prevent path traversal attacks)
+    if ".." in file.filename or "/" in file.filename or "\\" in file.filename:
+        logger.warning(f"Potential path traversal attempt: {file.filename}")
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid filename - path traversal detected"
+        )
+    
+    # Check file size
+    try:
+        # Read file to check size
+        file.file.seek(0, 2)  # Seek to end
+        file_size = file.file.tell()
+        file.file.seek(0)  # Reset to beginning
+        
+        if file_size == 0:
+            logger.warning(f"Empty file uploaded: {file.filename}")
+            raise HTTPException(
+                status_code=400,
+                detail="Empty file - file size is 0 bytes"
+            )
+        
+        if file_size < MIN_FILE_SIZE_BYTES:
+            logger.warning(f"File too small: {file.filename} ({file_size} bytes)")
+            raise HTTPException(
+                status_code=400,
+                detail=f"File too small. Minimum size: {MIN_FILE_SIZE_BYTES / 1024}KB"
+            )
+        
+        if file_size > MAX_FILE_SIZE_BYTES:
+            logger.warning(f"File too large: {file.filename} ({file_size} bytes)")
+            raise HTTPException(
+                status_code=413,
+                detail=f"File too large. Maximum size: {MAX_FILE_SIZE_MB}MB"
+            )
+        
+        logger.info(f"File validation passed: {file.filename} ({file_size} bytes)")
+        
+    except HTTPException:
+        # Re-raise HTTPExceptions
+        raise
+    except Exception as e:
+        logger.error(f"Error checking file size: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Error validating file"
+        )
+
+
+def sanitize_filename(filename: str) -> str:
+    """
+    Sanitize filename to prevent security issues.
+    
+    Args:
+        filename: Original filename
+        
+    Returns:
+        Sanitized filename safe for file system operations
+    """
+    # Get just the basename (no path components)
+    filename = os.path.basename(filename)
+    
+    # Remove or replace dangerous characters
+    dangerous_chars = ['..', '/', '\\', '\0', '<', '>', ':', '"', '|', '?', '*']
+    for char in dangerous_chars:
+        filename = filename.replace(char, '_')
+    
+    # Limit filename length
+    max_length = 255
+    if len(filename) > max_length:
+        name, ext = os.path.splitext(filename)
+        filename = name[:max_length - len(ext)] + ext
+    
+    return filename
