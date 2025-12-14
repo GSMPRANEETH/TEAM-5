@@ -18,9 +18,10 @@ sounddevice>=0.4.6
 
 # ===============================
 # Numerical Computing
+# Note: numpy is required by librosa, torch, and other packages
+# Explicitly listed to ensure compatible version
 # ===============================
 numpy>=1.23.0
-scipy>=1.9.0
 
 # ===============================
 # Speech Features
@@ -35,37 +36,37 @@ langchain>=0.1.0
 langchain-core>=0.1.0
 langchain-community
 langchain-ollama>=0.1.0
-langchain-classic>=1.0.0
 ollama>=0.1.0
-
-# ===============================
-# RAG - Vector Store & Embeddings
-# ===============================
-chromadb>=0.4.0
 
 # ===============================
 # Evaluations - LangChain Quality Assessment
 # ===============================
 # langchain-classic provides CriteriaEvalChain, ScoreStringEvalChain, JsonValidityEvaluator
 # Used for evaluating agent outputs against built-in and custom criteria
+# Falls back to regular langchain.evaluation if not available
+langchain-classic>=1.0.0
 
 # ===============================
-# Transformers & Acceleration
+# API Framework
 # ===============================
-transformers>=4.30.0
-accelerate>=0.20.3
-sentencepiece>=0.1.98
-
-# ===============================
-# HTTP Client & Utilities
-# ===============================
-httpx>=0.23.0
-pydantic>=2.0.0
-typing-extensions>=4.0.0
-
-# ===============================
-# GuardrailsAI - Input/Output Validation
-# ===============================
-guardrails-ai>=0.5.0
 fastapi>=0.95.0
 uvicorn>=0.22.0
+
+# ===============================
+# Utilities
+# ===============================
+pydantic>=2.0.0
+
+# ===============================
+# Optional Dependencies (Recommended)
+# Install all: pip install -r requirements.txt
+# Skip optional: Install packages above only, system will use fallbacks
+# ===============================
+
+# RAG - Vector Store
+# Falls back to keyword-based retrieval if not available
+chromadb>=0.4.0
+
+# Input/Output Validation
+# System works without it but with reduced safety checks
+guardrails-ai>=0.5.0

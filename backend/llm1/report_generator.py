@@ -1,4 +1,13 @@
 # llm1/report_generator.py
+"""
+Report generation using RAG-enhanced LLM.
+
+NOTE: This module provides `generate_final_report()` which is functionally 
+identical to `rag_enhanced_report()` in rag/rag_pipeline.py.
+- Main application uses: rag.rag_pipeline.rag_enhanced_report()
+- Tests use: llm1.report_generator.generate_final_report()
+Both produce the same output and can be used interchangeably.
+"""
 
 from llm1.local_llm import get_llm
 from llm1.prompt_templates import REPORT_PROMPT
