@@ -104,13 +104,7 @@ def communication_agent(state: Dict[str, Any]) -> Dict[str, Any]:
         transcript = state.get("transcript", "").strip()
         if not transcript:
             logger.warning("Empty transcript provided to communication agent")
-            # Return minimal valid response
-            return {
-                "communication_analysis": {
-                    "error": "No transcript available",
-                    "communication_score": 0
-                }
-            }
+            raise CommunicationAgentError("No transcript available")
         
         # Extract audio features
         audio_features = state.get("audio_features", {})

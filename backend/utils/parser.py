@@ -79,6 +79,7 @@ def safe_parse(s: Optional[Union[str, dict]]) -> Dict[str, Any]:
         logger.debug("Successfully parsed JSON directly")
         return result
     except json.JSONDecodeError:
+        # Note: TypeError is not expected here because we convert to string above (line 72)
         logger.debug("Direct JSON parse failed, trying recovery strategies")
 
     # 2️⃣ Strip markdown code blocks

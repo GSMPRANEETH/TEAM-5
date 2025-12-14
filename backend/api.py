@@ -21,10 +21,13 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Allow frontend access (configure appropriately for production)
+# Configure CORS - restrict origins in production via environment variables
+# Example: ALLOWED_ORIGINS="https://yourdomain.com,https://app.yourdomain.com"
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # TODO: Restrict in production
+    allow_origins=ALLOWED_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )

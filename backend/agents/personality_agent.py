@@ -102,12 +102,9 @@ def personality_agent(state: Dict[str, Any]) -> Dict[str, Any]:
         if not confidence_analysis:
             logger.warning("No confidence analysis available for personality agent")
         
-        # Get RAG context (note: currently unused in prompt, but retrieved for future use)
-        rag_context = _get_personality_context(state)
-        
         # Build prompt
         prompt = PERSONALITY_PROMPT.format(
-            rag_context="",  # Currently not used in template
+            rag_context="",  # RAG context not used in personality analysis
             communication_analysis=communication_analysis,
             confidence_analysis=confidence_analysis,
             communication_score=communication_analysis.get("communication_score", "N/A"),

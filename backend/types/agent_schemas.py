@@ -1,6 +1,6 @@
 """Pydantic schemas for agent outputs ensuring type safety and validation."""
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 from typing import List, Literal
 from enum import Enum
 
@@ -70,7 +70,7 @@ class CommunicationAnalysis(BaseModel):
     key_observations: List[str] = Field(
         min_length=1,
         max_length=5,
-        description="Key observations about communication patterns"
+        description="List up to 5 key observations (concise, specific insights or patterns noticed in the communication). Limit to 5 to focus on the most important points and avoid overwhelming detail."
     )
     communication_strengths: List[str] = Field(
         description="Identified communication strengths"
@@ -81,14 +81,6 @@ class CommunicationAnalysis(BaseModel):
     improvement_suggestions: List[str] = Field(
         description="Actionable improvement suggestions"
     )
-    
-    @field_validator('communication_score')
-    @classmethod
-    def validate_score(cls, v: int) -> int:
-        """Ensure score is within valid range."""
-        if not 0 <= v <= 100:
-            raise ValueError('Score must be between 0 and 100')
-        return v
     
     class Config:
         """Pydantic configuration."""
@@ -123,14 +115,6 @@ class ConfidenceAnalysis(BaseModel):
     confidence_enhancement_tips: List[str] = Field(
         description="Tips for enhancing confidence"
     )
-    
-    @field_validator('confidence_score')
-    @classmethod
-    def validate_score(cls, v: int) -> int:
-        """Ensure score is within valid range."""
-        if not 0 <= v <= 100:
-            raise ValueError('Score must be between 0 and 100')
-        return v
     
     class Config:
         """Pydantic configuration."""

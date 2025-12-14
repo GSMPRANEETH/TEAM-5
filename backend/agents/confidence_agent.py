@@ -105,12 +105,7 @@ def confidence_agent(state: Dict[str, Any]) -> Dict[str, Any]:
         audio_features = state.get("audio_features", {})
         if not audio_features:
             logger.warning("No audio features provided to confidence agent")
-            return {
-                "confidence_emotion_analysis": {
-                    "error": "No audio features available",
-                    "confidence_score": 0
-                }
-            }
+            raise ConfidenceAgentError("No audio features available")
         
         # Calculate confidence score
         score = confidence_score(audio_features)

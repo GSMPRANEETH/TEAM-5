@@ -4,6 +4,7 @@ from fastapi import UploadFile, HTTPException
 from typing import Set
 import os
 import logging
+from urllib.parse import unquote
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +68,9 @@ async def validate_audio_file(file: UploadFile) -> None:
         )
     
     # Sanitize filename (prevent path traversal attacks)
-    if ".." in file.filename or "/" in file.filename or "\\" in file.filename:
+    # Decode URL-encoded characters and check for path traversal
+    decoded_filename = unquote(file.filename)
+    if ".." in decoded_filename or "/" in decoded_filename or "\\" in decoded_filename:
         logger.warning(f"Potential path traversal attempt: {file.filename}")
         raise HTTPException(
             status_code=400,

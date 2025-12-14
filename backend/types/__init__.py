@@ -1,6 +1,6 @@
 """Type definitions for the speech analysis pipeline."""
 
-from types.agent_schemas import (
+from .agent_schemas import (
     ClarityLevel,
     SpeechPacing,
     EmotionalTone,
@@ -11,7 +11,7 @@ from types.agent_schemas import (
     ConfidenceAnalysis,
     PersonalityAnalysis,
 )
-from types.pipeline_types import (
+from .pipeline_types import (
     PipelineState,
     AudioFeatures,
     AgentResults,
