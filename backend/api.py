@@ -2,7 +2,8 @@
 
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from record_audio import record_audio
+import shutil
+import uuid
 from link import run_pipeline
 
 app = FastAPI(title="Speech Personality Analysis API")
@@ -14,6 +15,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+UPLOAD_DIR = "uploads"
+import os
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# backend/api.py
+
+from fastapi import UploadFile, File
+from record_audio import record_audio
+from link import run_pipeline
 
 @app.post("/analyze")
 async def analyze_audio(file: UploadFile = File(...)):
