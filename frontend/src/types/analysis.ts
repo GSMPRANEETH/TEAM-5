@@ -1,4 +1,5 @@
 // Communication analysis output structure
+// Note: LLM may return additional fields beyond these known properties
 export interface CommunicationAnalysis {
   communication_score?: number;
   clarity_level?: string;
@@ -8,10 +9,10 @@ export interface CommunicationAnalysis {
   communication_strengths?: string[];
   communication_gaps?: string[];
   improvement_suggestions?: string[];
-  [key: string]: string | number | string[] | undefined;
 }
 
 // Confidence analysis output structure
+// Note: LLM may return additional fields beyond these known properties
 export interface ConfidenceAnalysis {
   confidence_score?: number;
   confidence_level?: string;
@@ -20,10 +21,10 @@ export interface ConfidenceAnalysis {
   confidence_indicators?: string[];
   possible_challenges?: string[];
   confidence_enhancement_tips?: string[];
-  [key: string]: string | number | string[] | undefined;
 }
 
 // Personality analysis output structure
+// Note: LLM may return additional fields beyond these known properties
 export interface PersonalityAnalysis {
   personality_type?: string;
   interaction_style?: string;
@@ -32,9 +33,10 @@ export interface PersonalityAnalysis {
   strengths_in_interaction?: string[];
   growth_opportunities?: string[];
   overall_summary?: string;
-  [key: string]: string | number | string[] | undefined;
 }
 
+// Speech metrics from audio analysis
+// These are the specific metrics returned by the backend speech_features.py
 export interface SpeechMetrics {
   speech_rate?: number;
   pause_ratio?: number;
@@ -47,14 +49,14 @@ export interface SpeechMetrics {
   "Speech Duration (sec)"?: number;
   "Total Pause Time (sec)"?: number;
   "Total Words"?: number;
-  [key: string]: number | string | undefined;
 }
 
+// Agent results container
+// Only three specific analysis types are returned by the backend
 export interface AgentResults {
   communication_analysis?: CommunicationAnalysis;
   confidence_emotion_analysis?: ConfidenceAnalysis;
   personality_analysis?: PersonalityAnalysis;
-  [key: string]: CommunicationAnalysis | ConfidenceAnalysis | PersonalityAnalysis | undefined;
 }
 
 export interface AnalysisResult {
