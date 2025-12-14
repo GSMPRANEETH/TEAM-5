@@ -98,15 +98,23 @@ function App() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const normalizeScore = (score: number) => {
+    return score <= 1 ? score * 100 : score;
+  };
+
+  const formatConfidenceScore = (score: number) => {
+    return normalizeScore(score).toFixed(0) + '%';
+  };
+
   const getConfidenceColor = (score: number) => {
-    const normalized = score <= 1 ? score * 100 : score;
+    const normalized = normalizeScore(score);
     if (normalized >= 80) return "bg-green-500";
     if (normalized >= 60) return "bg-amber-500";
     return "bg-red-500";
   };
 
-  const getConfidenceVariant = (score: number): "default" | "destructive" | "success" | "warning" | "secondary" | "outline" | null | undefined => {
-    const normalized = score <= 1 ? score * 100 : score;
+  const getConfidenceVariant = (score: number): 'success' | 'warning' | 'destructive' => {
+    const normalized = normalizeScore(score);
     if (normalized >= 80) return "success";
     if (normalized >= 60) return "warning";
     return "destructive";
@@ -281,13 +289,13 @@ function App() {
                         {result.confidence_label}
                       </Badge>
                       <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                        {((result.confidence_score <= 1 ? result.confidence_score * 100 : result.confidence_score)).toFixed(0)}%
+                        {formatConfidenceScore(result.confidence_score)}
                       </span>
                     </div>
                     <div className="relative h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                       <div
                         className={`absolute inset-y-0 left-0 ${getConfidenceColor(result.confidence_score)} transition-all duration-500`}
-                        style={{ width: `${result.confidence_score <= 1 ? result.confidence_score * 100 : result.confidence_score}%` }}
+                        style={{ width: `${normalizeScore(result.confidence_score)}%` }}
                       />
                     </div>
                   </div>
