@@ -23,6 +23,7 @@ ALLOWED_AUDIO_TYPES: Set[str] = {
     "audio/ogg",
     "audio/x-wav",
     "audio/wave",
+    "video/webm",  # libmagic reports WebM (including audio-only) as video/webm
 }
 
 # Maximum file size (50MB)

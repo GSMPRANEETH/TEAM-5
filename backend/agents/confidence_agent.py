@@ -129,8 +129,20 @@ def confidence_agent(state: Dict[str, Any]) -> Dict[str, Any]:
         
         # Parse and validate response
         parsed = safe_parse(response)
+
+        # Check for parse errors (sentinel keys from safe_parse)
+        if "error" in parsed or "status" in parsed:
+            error_msg = parsed.get("error", "Unknown parse error")
+            status = parsed.get("status", "unknown")
+            logger.error(
+                f"Parse failure in confidence agent - error: {error_msg}, "
+                f"status: {status}, raw: {parsed.get('raw', 'N/A')}"
+            )
+            raise ConfidenceAgentError(f"Failed to parse LLM response: {error_msg}")
+
+        # Validate only genuinely parsed outputs
         validated = validate_agent_response(parsed, "confidence_agent")
-        
+
         logger.info("Confidence analysis completed successfully")
         return {"confidence_emotion_analysis": validated}
 
