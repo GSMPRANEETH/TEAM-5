@@ -1,5 +1,6 @@
 # backend/record_audio.py
 
+import os
 import shutil
 import subprocess
 import tempfile
@@ -31,19 +32,27 @@ def record_audio(file: UploadFile) -> Tuple[str, str]:
         shutil.copyfileobj(file.file, buffer)
 
     # Convert to WAV using ffmpeg
-    subprocess.run(
-        [
-            "ffmpeg",
-            "-y",
-            "-i", temp_webm,
-            "-ac", "1",
-            "-ar", str(SAMPLE_RATE),
-            temp_wav
-        ],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-        check=True
-    )
+    try:
+        subprocess.run(
+            [
+                "ffmpeg",
+                "-y",
+                "-i", temp_webm,
+                "-ac", "1",
+                "-ar", str(SAMPLE_RATE),
+                temp_wav
+            ],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=True
+        )
+    except Exception:
+        # Clean up temp files on conversion failure
+        if os.path.exists(temp_webm):
+            os.remove(temp_webm)
+        if os.path.exists(temp_wav):
+            os.remove(temp_wav)
+        raise
 
     print(f"✅ Recording saved as {temp_wav}")
 

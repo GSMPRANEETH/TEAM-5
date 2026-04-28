@@ -136,4 +136,4 @@ def confidence_agent(state: Dict[str, Any]) -> Dict[str, Any]:
 
     except Exception as e:
         logger.exception(f"Confidence agent failed: {e}")
-        raise ConfidenceAgentError(f"Agent execution failed: {e}")
+        raise ConfidenceAgentError(f"Agent execution failed: {e}") from e

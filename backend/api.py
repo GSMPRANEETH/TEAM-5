@@ -3,6 +3,7 @@
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.concurrency import run_in_threadpool
 import os
 import logging
 from typing import Dict, Any
@@ -77,11 +78,11 @@ async def analyze_audio(file: UploadFile = File(...)) -> Dict[str, Any]:
     webm_path = None
     try:
         # Record/save the audio file - returns (wav_path, webm_path)
-        audio_path, webm_path = record_audio(file)
+        audio_path, webm_path = await run_in_threadpool(record_audio, file)
         logger.info(f"Processing audio file: {file.filename}")
 
         # Run the analysis pipeline with the WAV path
-        result = run_pipeline(audio_path)
+        result = await run_in_threadpool(run_pipeline, audio_path)
 
         logger.info(f"Analysis completed successfully for: {file.filename}")
         return result

@@ -94,8 +94,10 @@ async def validate_audio_file(file: UploadFile) -> None:
             raise
         except Exception as e:
             logger.error(f"Error during magic byte validation: {e}")
-            # Continue with client-provided type (already validated above)
-            logger.warning("Falling back to client-provided content type due to validation error")
+            raise HTTPException(
+                status_code=415,
+                detail="Magic-byte validation failed"
+            )
     else:
         logger.warning(
             "python-magic not available - relying on client-provided content type only. "
