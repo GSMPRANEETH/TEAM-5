@@ -21,9 +21,21 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Configure CORS - restrict origins in production via environment variables
+# Configure CORS - fail closed by default, only allow wildcard in development
 # Example: ALLOWED_ORIGINS="https://yourdomain.com,https://app.yourdomain.com"
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
+# Or: ENV="development" for wildcard access
+raw_origins = os.getenv("ALLOWED_ORIGINS", "")
+if raw_origins:
+    # Split, trim, and filter blank entries
+    ALLOWED_ORIGINS = [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
+elif os.getenv("ENV") == "development" or os.getenv("DEBUG") == "true":
+    # Only allow wildcard in explicit development mode
+    ALLOWED_ORIGINS = ["*"]
+    logger.warning("CORS configured with wildcard '*' in development mode")
+else:
+    # Fail closed in production
+    ALLOWED_ORIGINS = []
+    logger.info("CORS configured with no allowed origins (production default)")
 
 app.add_middleware(
     CORSMiddleware,
@@ -59,19 +71,21 @@ async def analyze_audio(file: UploadFile = File(...)) -> Dict[str, Any]:
     """
     # Validate the uploaded file
     await validate_audio_file(file)
-    
+
+    # Initialize temp file paths before try/except
     audio_path = None
+    webm_path = None
     try:
-        # Record/save the audio file
-        audio_path = record_audio(file)
+        # Record/save the audio file - returns (wav_path, webm_path)
+        audio_path, webm_path = record_audio(file)
         logger.info(f"Processing audio file: {file.filename}")
-        
-        # Run the analysis pipeline
+
+        # Run the analysis pipeline with the WAV path
         result = run_pipeline(audio_path)
-        
+
         logger.info(f"Analysis completed successfully for: {file.filename}")
         return result
-        
+
     except HTTPException:
         # Re-raise HTTP exceptions (from validation)
         raise
@@ -79,14 +93,15 @@ async def analyze_audio(file: UploadFile = File(...)) -> Dict[str, Any]:
         logger.exception(f"Error processing audio file {file.filename}: {e}")
         raise HTTPException(
             status_code=500,
-            detail=f"Error processing audio file: {str(e)}"
+            detail="Internal server error processing audio file"
         )
     finally:
-        # Cleanup: Remove temporary audio file
-        if audio_path and os.path.exists(audio_path):
-            try:
-                os.remove(audio_path)
-                logger.debug(f"Cleaned up temporary file: {audio_path}")
-            except Exception as e:
-                logger.warning(f"Failed to cleanup file {audio_path}: {e}")
+        # Cleanup: Remove all temporary audio files (both WAV and WebM)
+        for temp_file in [audio_path, webm_path]:
+            if temp_file and os.path.exists(temp_file):
+                try:
+                    os.remove(temp_file)
+                    logger.debug(f"Cleaned up temporary file: {temp_file}")
+                except Exception as e:
+                    logger.warning(f"Failed to cleanup file {temp_file}: {e}")
 

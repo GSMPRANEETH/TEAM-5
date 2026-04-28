@@ -6,6 +6,12 @@ import os
 import logging
 from urllib.parse import unquote
 
+try:
+    import magic
+    MAGIC_AVAILABLE = True
+except ImportError:
+    MAGIC_AVAILABLE = False
+
 logger = logging.getLogger(__name__)
 
 # Allowed MIME types for audio files
@@ -51,12 +57,49 @@ async def validate_audio_file(file: UploadFile) -> None:
             detail="No file provided"
         )
     
-    # Check content type
+    # Check client-provided content type first (fast check)
     if file.content_type not in ALLOWED_AUDIO_TYPES:
-        logger.warning(f"Invalid file type uploaded: {file.content_type}")
+        logger.warning(f"Invalid file type uploaded (client header): {file.content_type}")
         raise HTTPException(
             status_code=400,
             detail=f"Invalid file type '{file.content_type}'. Allowed types: {', '.join(ALLOWED_AUDIO_TYPES)}"
+        )
+
+    # Perform server-side content type validation using magic bytes
+    if MAGIC_AVAILABLE:
+        try:
+            # Read first 512 bytes for magic number detection
+            file.file.seek(0)
+            file_prefix = file.file.read(512)
+            file.file.seek(0)  # Reset to beginning
+
+            # Detect actual MIME type from bytes
+            detected_mime = magic.from_buffer(file_prefix, mime=True)
+
+            # Validate detected type against allowed types
+            if detected_mime not in ALLOWED_AUDIO_TYPES:
+                logger.warning(
+                    f"Content type mismatch - client: {file.content_type}, "
+                    f"detected: {detected_mime}, filename: {file.filename}"
+                )
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"File content does not match declared type. Detected: {detected_mime}"
+                )
+
+            logger.debug(f"Server-side validation passed: {detected_mime}")
+
+        except HTTPException:
+            # Re-raise validation errors
+            raise
+        except Exception as e:
+            logger.error(f"Error during magic byte validation: {e}")
+            # Continue with client-provided type (already validated above)
+            logger.warning("Falling back to client-provided content type due to validation error")
+    else:
+        logger.warning(
+            "python-magic not available - relying on client-provided content type only. "
+            "Install python-magic for enhanced security."
         )
     
     # Check filename exists

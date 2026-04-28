@@ -76,8 +76,11 @@ def safe_parse(s: Optional[Union[str, dict]]) -> Dict[str, Any]:
     # 1️⃣ Try direct JSON parse
     try:
         result = json.loads(s)
-        logger.debug("Successfully parsed JSON directly")
-        return result
+        if isinstance(result, dict):
+            logger.debug("Successfully parsed JSON directly")
+            return result
+        else:
+            logger.warning(f"JSON parsed but not a dict (got {type(result).__name__}), falling back")
     except json.JSONDecodeError:
         # Note: TypeError is not expected here because we convert to string above (line 72)
         logger.debug("Direct JSON parse failed, trying recovery strategies")
@@ -87,8 +90,12 @@ def safe_parse(s: Optional[Union[str, dict]]) -> Dict[str, Any]:
     if code_block:
         try:
             result = json.loads(code_block.group(1).strip())
-            logger.debug("Successfully parsed JSON from markdown code block")
-            return result
+            if isinstance(result, dict):
+                logger.debug("Successfully parsed JSON from markdown code block")
+                return result
+            else:
+                logger.warning(f"Code block parsed but not a dict (got {type(result).__name__})")
+                s = code_block.group(1).strip()
         except json.JSONDecodeError:
             s = code_block.group(1).strip()
             logger.debug("Code block found but invalid JSON, continuing recovery")
@@ -120,8 +127,16 @@ def safe_parse(s: Optional[Union[str, dict]]) -> Dict[str, Any]:
     # 5️⃣ Final parse attempt
     try:
         result = json.loads(candidate)
-        logger.info("Successfully parsed JSON after recovery")
-        return result
+        if isinstance(result, dict):
+            logger.info("Successfully parsed JSON after recovery")
+            return result
+        else:
+            logger.error(f"JSON parsed but not a dict (got {type(result).__name__})")
+            return {
+                "raw": candidate[:500],
+                "error": f"JSON is not a dict (got {type(result).__name__})",
+                "status": "parse_failed"
+            }
     except json.JSONDecodeError as e:
         logger.error(f"JSON parse failed after all recovery attempts: {e}")
         return {

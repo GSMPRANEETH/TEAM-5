@@ -149,8 +149,10 @@ except Exception:  # Too broad!
 
 ```python
 # backend/types/agent_schemas.py
-from pydantic import BaseModel, Field, field_validator
-from typing import List, Literal
+# NOTE: This example has been updated to match the actual committed schema.
+# See backend/types/agent_schemas.py for the complete, authoritative definitions.
+from pydantic import BaseModel, Field
+from typing import List
 from enum import Enum
 
 class ClarityLevel(str, Enum):
@@ -158,16 +160,28 @@ class ClarityLevel(str, Enum):
     MEDIUM = "Medium"
     HIGH = "High"
 
+class SpeechPacing(str, Enum):
+    TOO_SLOW = "Too Slow"
+    BALANCED = "Balanced"
+    TOO_FAST = "Too Fast"
+
 class CommunicationAnalysis(BaseModel):
     """Structured output schema for Communication Agent."""
-    communication_score: int = Field(ge=0, le=100)
-    clarity_level: ClarityLevel
-    fluency_level: ClarityLevel
-    speech_pacing: Literal["Too Slow", "Balanced", "Too Fast"]
-    key_observations: List[str] = Field(min_items=1, max_items=5)
-    communication_strengths: List[str]
-    communication_gaps: List[str]
-    improvement_suggestions: List[str]
+    communication_score: int = Field(ge=0, le=100, description="Communication quality score (0-100)")
+    clarity_level: ClarityLevel = Field(description="Overall clarity of communication")
+    fluency_level: ClarityLevel = Field(description="Speech fluency level")
+    speech_pacing: SpeechPacing = Field(description="Assessment of speech pacing")
+    key_observations: List[str] = Field(
+        min_length=1,
+        max_length=5,
+        description="List up to 5 key observations"
+    )
+    communication_strengths: List[str] = Field(description="Identified communication strengths")
+    communication_gaps: List[str] = Field(description="Areas needing improvement")
+    improvement_suggestions: List[str] = Field(description="Actionable improvement suggestions")
+
+    class Config:
+        use_enum_values = True
 ```
 
 ### Task 1.2: API Input Validation

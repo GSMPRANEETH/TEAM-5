@@ -133,10 +133,7 @@ def confidence_agent(state: Dict[str, Any]) -> Dict[str, Any]:
         
         logger.info("Confidence analysis completed successfully")
         return {"confidence_emotion_analysis": validated}
-        
-    except KeyError as e:
-        logger.error(f"Missing required key in state: {e}")
-        raise ConfidenceAgentError(f"Invalid state structure: {e}")
+
     except Exception as e:
         logger.exception(f"Confidence agent failed: {e}")
         raise ConfidenceAgentError(f"Agent execution failed: {e}")
