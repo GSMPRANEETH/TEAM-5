@@ -83,9 +83,12 @@ class _LazyNvidiaLLM:
                 
                 # Test connection
                 self._llm.invoke("test")
-            except Exception as e:
+            except (ImportError, ModuleNotFoundError) as e:
                 print(f"⚠️ NVIDIA API not available ({e}), using stub LLM")
                 self._llm = _StubLLM()
+            except Exception:
+                # Re-raise any other exception (API failures, auth, network, config)
+                raise
         return self._llm
     
     def invoke(self, prompt: str) -> str:

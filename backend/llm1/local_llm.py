@@ -18,15 +18,15 @@ def get_llm():
             max_tokens=MAX_TOKENS
         )
         llm = chat_model | StrOutputParser()
-
-        # Quick test to see if Nvidia API is working
-        llm.invoke("hi")
         return llm
-        
-    except Exception as e:
+
+    except (ImportError, ModuleNotFoundError) as e:
         print(f"⚠️ NVIDIA API not available: {e}")
         print("   Using stub LLM for testing...")
-        
+
         # Import stub from main llm module
         from llm.local_llm import _StubLLM
         return _StubLLM()
+    except Exception:
+        # Re-raise any other exception (API failures, auth, network, config)
+        raise
