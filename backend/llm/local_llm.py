@@ -81,7 +81,7 @@ class _LazyNvidiaLLM:
                         chat_model = ChatNVIDIA(
                             model=LLM_MODEL_NAME,
                             temperature=TEMPERATURE,
-                            max_tokens=MAX_TOKENS
+                            max_completion_tokens=MAX_TOKENS
                         )
                         self._llm = chat_model | StrOutputParser()
                         self._initialized = True
