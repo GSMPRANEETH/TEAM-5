@@ -5,6 +5,7 @@ falls back to a lightweight stub that returns deterministic JSON for
 testing purposes.
 """
 import json
+import threading
 
 from llm1.llm_config import LLM_MODEL_NAME, TEMPERATURE, MAX_TOKENS
 
@@ -62,33 +63,36 @@ class _StubLLM:
 
 class _LazyNvidiaLLM:
     """Lazy-loading wrapper that tries NVIDIA API first, falls back to stub."""
-    
+
     def __init__(self):
         self._llm = None
         self._initialized = False
+        self._init_lock = threading.Lock()
     
     def _get_llm(self):
         if not self._initialized:
-            self._initialized = True
-            try:
-                from langchain_nvidia_ai_endpoints import ChatNVIDIA
-                from langchain_core.output_parsers import StrOutputParser
+            with self._init_lock:
+                # Double-check after acquiring lock
+                if not self._initialized:
+                    try:
+                        from langchain_nvidia_ai_endpoints import ChatNVIDIA
+                        from langchain_core.output_parsers import StrOutputParser
 
-                chat_model = ChatNVIDIA(
-                    model=LLM_MODEL_NAME,
-                    temperature=TEMPERATURE,
-                    max_tokens=MAX_TOKENS
-                )
-                self._llm = chat_model | StrOutputParser()
-                
-                # Test connection
-                self._llm.invoke("test")
-            except (ImportError, ModuleNotFoundError) as e:
-                print(f"⚠️ NVIDIA API not available ({e}), using stub LLM")
-                self._llm = _StubLLM()
-            except Exception:
-                # Re-raise any other exception (API failures, auth, network, config)
-                raise
+                        chat_model = ChatNVIDIA(
+                            model=LLM_MODEL_NAME,
+                            temperature=TEMPERATURE,
+                            max_tokens=MAX_TOKENS
+                        )
+                        self._llm = chat_model | StrOutputParser()
+                        self._initialized = True
+                    except (ImportError, ModuleNotFoundError) as e:
+                        print(f"⚠️ NVIDIA API not available ({e}), using stub LLM")
+                        self._llm = _StubLLM()
+                        self._initialized = True
+                    except Exception:
+                        # Re-raise any other exception (API failures, auth, network, config)
+                        # Leave _initialized as False so retry is possible
+                        raise
         return self._llm
     
     def invoke(self, prompt: str) -> str:
