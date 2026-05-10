@@ -1,1 +1,5 @@
-npm run lint --prefix frontend && cd backend && ruff check .
+#!/usr/bin/env sh
+set -e
+
+npm run lint --prefix frontend
+./backend/lint.sh
