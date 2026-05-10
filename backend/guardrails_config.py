@@ -8,7 +8,6 @@ All validators are pre-built from the Guardrails Hub - no custom validators need
 Hub Validators Used:
 - ToxicLanguage: Detects toxic/harmful language
 - ProfanityFree: Checks for profanity
-- ValidJson: Validates JSON structure
 - DetectPII: Detects personally identifiable information
 - GibberishText: Detects gibberish/nonsense text
 - SensitiveTopics: Flags sensitive content
@@ -18,7 +17,6 @@ Installation:
     guardrails configure
     guardrails hub install hub://guardrails/toxic_language
     guardrails hub install hub://guardrails/profanity_free
-    guardrails hub install hub://guardrails/valid_json
     guardrails hub install hub://guardrails/detect_pii
     guardrails hub install hub://guardrails/gibberish_text
     guardrails hub install hub://guardrails/sensitive_topics
@@ -26,7 +24,7 @@ Installation:
 
 import json
 import logging
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Tuple
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -38,7 +36,6 @@ try:
     from guardrails.hub import (
         ToxicLanguage,
         ProfanityFree,
-        ValidJson,
         DetectPII,
         GibberishText,
         SensitiveTopics,
@@ -126,7 +123,7 @@ class GuardrailsWrapper:
     
     def validate_agent_output(self, output: str, agent_name: str = "agent") -> Tuple[str, Dict[str, Any]]:
         """
-        Validate agent JSON output.
+        Validate agent output.
         
         Args:
             output: Agent output (JSON string or dict)
