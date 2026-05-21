@@ -34,6 +34,4 @@ def get_llm():
         return _StubLLM()
     except Exception as e:
         print(f"⚠️ Exception initializing NVIDIA LLM: {e}")
-        print("   Using stub LLM for testing...")
-        from llm.local_llm import _StubLLM
-        return _StubLLM()
+        raise

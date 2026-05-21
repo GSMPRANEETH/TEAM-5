@@ -115,8 +115,7 @@ class _LazyNvidiaLLM:
                         self._initialized = True
                     except Exception as e:
                         print(f"⚠️ Exception initializing NVIDIA LLM: {e}")
-                        self._llm = _StubLLM()
-                        self._initialized = True
+                        raise
         return self._llm
     
     def invoke(self, prompt: str) -> str:
