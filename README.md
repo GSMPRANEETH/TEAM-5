@@ -1,4 +1,4 @@
-# 🎙️ TEAM-5 Speech Analysis Pipeline
+# TEAM-5 Speech Analysis Pipeline
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.95+-green.svg)](https://fastapi.tiangolo.com/)
@@ -8,7 +8,7 @@
 
 An advanced AI-powered speech analysis system that provides real-time personality insights and communication feedback. Built with a robust multi-agent AI architecture powered by **NVIDIA NIM** LLMs and enhanced by Retrieval-Augmented Generation (RAG).
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
 - [Features](#features)
@@ -35,7 +35,7 @@ TEAM-5 provides a full-stack speech processing pipeline that combines state-of-t
 ### AI & Backend (Python/FastAPI)
 - **Audio Processing:** Multi-format audio support with built-in recording capabilities.
 - **Speech-to-Text:** Fast transcription utilizing Faster-Whisper.
-- **Acoustic Feature Extraction:** Detailed analysis (pitch, energy, speaking rate, pauses) using openSMILE, Silero VAD, and librosa.
+- **Acoustic Feature Extraction:** Detailed analysis (pitch, energy, speaking rate, pauses) using PyAnnote and openSMILE.
 - **NVIDIA NIM Integration:** Utilizes `meta/llama3-8b-instruct` (configurable) via `langchain-nvidia-ai-endpoints` for ultra-fast, intelligent analysis.
 - **Multi-Agent System:** Specialized agents for evaluating **Communication**, **Confidence**, and **Personality**.
 - **RAG System:** ChromaDB-backed knowledge retrieval for domain-specific insights.
@@ -137,8 +137,8 @@ If you prefer to run the services directly on your host machine without Docker:
 cd backend
 
 # Create and activate virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -172,13 +172,13 @@ Access the frontend at `http://localhost:5173`.
 
 ### Standalone CLI Pipeline
 
-You can run the backend standalone script to preprocess and analyze an existing `raw_audio.wav` file from the terminal.
+You can run the backend standalone script to record audio from your microphone and immediately process it in the terminal.
 
 ```bash
 cd backend
 python main.py
 ```
-This script preprocesses `raw_audio.wav`, runs transcription + analysis + agents via NVIDIA NIM, and prints the complete report.
+This script will record audio for 45 seconds, process the file, run the agents via NVIDIA NIM, and print out the complete report.
 
 ### REST API Usage
 
@@ -220,8 +220,7 @@ TEAM-5/
 ├── backend/                 # FastAPI & AI Pipeline
 │   ├── api.py               # Main API endpoints
 │   ├── main.py              # CLI standalone pipeline script
-│   ├── pipeline.py          # Transcription + speech-feature analysis helpers
-│   ├── link.py              # API-facing orchestration (agents + RAG + final report)
+│   ├── pipeline.py          # Core pipeline orchestration
 │   ├── agents/              # Multi-agent system (Comm, Conf, Pers)
 │   ├── llm/                 # NVIDIA LLM wrapper
 │   ├── llm1/                # Prompts, config, and report generation
@@ -251,13 +250,9 @@ MAX_TOKENS = 512
 RAG Configuration can be found in `backend/rag/config.py`:
 
 ```python
-import os
-
-CHROMA_PERSIST_DIR = os.path.join(os.path.dirname(__file__), "chroma_db")
+CHROMA_PERSIST_DIR = "./chroma_db"
 TOP_K_RESULTS = 3
 ```
-
-Current runtime behavior: `backend/rag/retriever.py` initializes `chromadb.Client()` for in-memory retrieval (no persistence directory used by default).
 
 ---
 
@@ -292,19 +287,14 @@ Navigate to the `backend/` directory to run built-in test scripts:
   If Faster-Whisper, PyAnnote, or Librosa fail to install or run, ensure you have system-level audio dependencies installed (like `ffmpeg` on Linux/macOS).
 
 - **Docker Port Conflicts:**
-  If you see "address already in use" errors, ensure ports `8000` (FastAPI) and `5173` (Vite) are not occupied.
-  - **Linux/macOS:**
+  If you see "address already in use" errors, ensure ports `8000` (FastAPI) and `5173` (Vite) are not occupied. Kill the process occupying them:
   ```bash
   kill -9 $(lsof -t -i:8000)
   ```
-  - **Windows PowerShell:**
-   ```powershell
-   Get-NetTCPConnection -LocalPort 8000 | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
-   ```
 
 - **Ruff Linting Paths Collision:**
   Ruff should be executed directly via `ruff check .` from inside the `backend` folder, not `python -m ruff`, to avoid pathing collisions with the internal `backend/types` module.
 
 ---
 
-**Built with ❤️ by TEAM-5**
+**Built with by TEAM-5**
