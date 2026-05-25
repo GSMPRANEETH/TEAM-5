@@ -138,7 +138,9 @@ cd backend
 
 # Create and activate virtual environment
 python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+source .venv/bin/activate  # Linux/macOS
+# On Windows CMD: .venv\Scripts\activate
+# On Windows PowerShell: .venv\Scripts\Activate.ps1
 
 # Install dependencies
 pip install -r requirements.txt
@@ -321,5 +323,5 @@ Navigate to the `backend/` directory to run built-in test scripts:
 
 **Built with ❤️ by TEAM-5**
 
-[chatgpt](https://chatgpt.com/g/g-p-693cf63b3d608191a200ca21f1c5f7e2-tts/project)
-[perplexity](https://www.perplexity.ai/spaces/tts-1gnsM.HoSV.NHB6HbWS31g#0)
+[Project ChatGPT Assistant](https://chatgpt.com/g/g-p-693cf63b3d608191a200ca21f1c5f7e2-tts/project)
+[Perplexity TTS Space](https://www.perplexity.ai/spaces/tts-1gnsM.HoSV.NHB6HbWS31g#0)
