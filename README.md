@@ -3,583 +3,329 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.95+-green.svg)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-19.2+-61DAFB.svg)](https://reactjs.org/)
+[![Docker](https://img.shields.io/badge/Docker-compose-2496ED.svg)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-An advanced AI-powered speech analysis system that provides real-time personality insights and communication feedback using local LLMs, RAG, and multi-agent AI architecture.
+An advanced AI-powered speech analysis system that provides real-time personality insights and communication feedback. Built with a robust multi-agent AI architecture powered by **NVIDIA NIM** LLMs and enhanced by Retrieval-Augmented Generation (RAG).
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
 - [Features](#features)
-- [Architecture](#architecture)
-- [System Requirements](#system-requirements)
-- [Quick Start](#quick-start)
-- [Installation](#installation)
-- [Usage](#usage)
+- [Architecture & Workflow](#architecture--workflow)
+- [Prerequisites & System Requirements](#prerequisites--system-requirements)
+- [Quick Start (Docker Compose)](#quick-start-docker-compose)
+- [Manual Setup (Alternative)](#manual-setup-alternative)
+- [Usage & API](#usage--api)
 - [Project Structure](#project-structure)
-- [API Documentation](#api-documentation)
 - [Configuration](#configuration)
-- [Development](#development)
-- [Testing & Evaluation](#testing--evaluation)
+- [Testing & Quality Assessment](#testing--quality-assessment)
 - [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [License](#license)
 
-## 🌟 Overview
+---
 
-TEAM-5 is a comprehensive speech analysis pipeline that combines state-of-the-art speech processing, natural language understanding, and multi-agent AI systems to provide detailed personality insights and communication analysis. The system uses local LLMs (via Ollama) and Retrieval-Augmented Generation (RAG) to deliver personalized, actionable feedback.
+## Overview
 
-### Key Capabilities
+TEAM-5 provides a full-stack speech processing pipeline that combines state-of-the-art acoustic feature extraction with natural language understanding. By leveraging **NVIDIA's highly optimized AI endpoints**, the system parses speech patterns to deliver targeted, personalized communication feedback, confidence scoring, and personality traits using multi-agent insights.
 
-- **Real-time Speech Analysis**: Process audio through advanced speech-to-text and acoustic feature extraction
-- **Multi-Agent AI System**: Specialized agents for communication, confidence, and personality analysis
-- **RAG-Enhanced Reports**: Knowledge-augmented insights using vector database retrieval
-- **Quality Assurance**: Built-in evaluation framework using LangChain evaluators
-- **Full-Stack Solution**: FastAPI backend + React frontend for seamless user experience
+---
 
-## ✨ Features
+## Features
 
-### Backend Features
-- 🎤 **Audio Recording & Processing**: Multi-format audio support with noise reduction
-- 📝 **Speech-to-Text**: High-accuracy transcription using Faster-Whisper
-- 📊 **Acoustic Analysis**: Comprehensive feature extraction (pitch, energy, pauses, speech rate)
-- 🧠 **Multi-Agent AI**: Specialized agents for different analysis aspects
-- 🔍 **RAG System**: ChromaDB-powered knowledge retrieval
-- 🛡️ **Guardrails AI**: Input/output validation and safety checks
-- 📈 **Evaluation Framework**: Quality assessment using LangChain evaluators
-- 🚀 **REST API**: FastAPI-powered endpoints for frontend integration
+### AI & Backend (Python/FastAPI)
+- **Audio Processing:** Multi-format audio support with built-in recording capabilities.
+- **Speech-to-Text:** Fast transcription utilizing Faster-Whisper.
+- **Acoustic Feature Extraction:** Detailed analysis (pitch, energy, speaking rate, pauses) using openSMILE, Silero VAD, and librosa.
+- **NVIDIA NIM Integration:** Utilizes `meta/llama3-8b-instruct` (configurable) via `langchain-nvidia-ai-endpoints` for ultra-fast, intelligent analysis.
+- **Multi-Agent System:** Specialized agents for evaluating **Communication**, **Confidence**, and **Personality**.
+- **RAG System:** ChromaDB-backed knowledge retrieval for domain-specific insights.
 
-### Frontend Features
-- ⚡ **React + TypeScript**: Modern, type-safe UI development
-- 🎨 **Responsive Design**: Works on desktop and mobile devices
-- 📤 **File Upload**: Support for various audio formats
-- 📊 **Results Visualization**: Interactive display of analysis results
-- ⏱️ **Real-time Feedback**: Instant processing status updates
+### Frontend (React/Vite)
+- **Modern Stack:** React 19 + TypeScript + TailwindCSS.
+- **Sleek UI:** Interactive progress tracking, file uploads, and responsive results visualization.
 
-## 🏗️ Architecture
+---
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                         Frontend                             │
-│                    (React + TypeScript)                      │
-│                 Vite Dev Server / Build                      │
-└────────────────────────┬────────────────────────────────────┘
-                         │ HTTP/REST API
-                         │
-┌────────────────────────▼────────────────────────────────────┐
-│                      Backend API                             │
-│                     (FastAPI + Uvicorn)                      │
-├──────────────────────────────────────────────────────────────┤
-│                    Speech Processing Pipeline                │
-│  ┌──────────┐  ┌───────────┐  ┌──────────┐  ┌────────────┐ │
-│  │  Audio   │→ │  Speech   │→ │  Feature │→ │   Multi-   │ │
-│  │ Recording│  │  to Text  │  │Extraction│  │Agent System│ │
-│  └──────────┘  └───────────┘  └──────────┘  └─────┬──────┘ │
-│                                                      │        │
-│  ┌──────────────────────────────────────────────────▼──────┐ │
-│  │            RAG System (ChromaDB + Ollama)              │ │
-│  │  - Communication Knowledge    - Confidence Psychology  │ │
-│  │  - Personality Traits         - Improvement Tips       │ │
-│  └────────────────────────────────────────────────────────┘ │
-│                                                               │
-│  ┌────────────────────────────────────────────────────────┐ │
-│  │           Evaluation & Guardrails                      │ │
-│  │  - LangChain Evaluators  - Input/Output Validation    │ │
-│  └────────────────────────────────────────────────────────┘ │
-└───────────────────────────────────────────────────────────────┘
-                         │
-                         ▼
-                  ┌──────────────┐
-                  │    Ollama    │
-                  │ Local LLM    │
-                  │  (mistral)   │
-                  └──────────────┘
+## Architecture & Workflow
+
+The system is split into a React frontend and a FastAPI backend. The entire processing pipeline operates seamlessly to analyze user audio and generate actionable feedback.
+
+```mermaid
+graph TD
+    User([User]) -->|Uploads/Records Audio| Frontend
+    Frontend[React Frontend] -->|POST /analyze| API[FastAPI Backend]
+
+    subgraph Backend Pipeline
+        API --> Preprocessor[Audio Preprocessing]
+        Preprocessor --> STT[Faster-Whisper STT]
+        Preprocessor --> AudioFeat[Acoustic Feature Extraction]
+        STT --> AgentOrch{Agent Orchestrator}
+        AudioFeat --> AgentOrch
+
+        AgentOrch --> CommAgent[Communication Agent]
+        AgentOrch --> ConfAgent[Confidence Agent]
+        AgentOrch --> PersAgent[Personality Agent]
+
+        CommAgent --> RAG[(ChromaDB RAG)]
+        ConfAgent --> RAG
+        PersAgent --> RAG
+
+        CommAgent --> NvidiaLLM((NVIDIA NIM LLM))
+        ConfAgent --> NvidiaLLM
+        PersAgent --> NvidiaLLM
+
+        NvidiaLLM --> ReportGen[Final Report Generator]
+    end
+
+    ReportGen --> API
+    API -->|JSON Result| Frontend
+    Frontend -->|Visualized Insights| User
 ```
 
-### Component Breakdown
+---
 
-1. **Speech Processing**: Audio recording, preprocessing, and transcription
-2. **Feature Extraction**: Acoustic analysis (openSMILE, PyAnnote)
-3. **Multi-Agent System**: 
-   - Communication Agent: Analyzes clarity, fluency, structure
-   - Confidence Agent: Evaluates vocal confidence and emotional tone
-   - Personality Agent: Maps communication patterns to personality traits
-4. **RAG System**: Retrieves relevant expert knowledge for enhanced insights
-5. **Report Generation**: LLM-powered personalized feedback reports
-6. **Evaluation Framework**: Quality assessment and validation
+## Prerequisites & System Requirements
 
-## 💻 System Requirements
+Before starting, ensure you have the following installed:
+- **Docker & Docker Compose** (Recommended for Quick Start)
+- **NVIDIA API Key** (Required for LLM inference. Get one from [build.nvidia.com](https://build.nvidia.com/))
+- **Node.js 18+** & **npm** (For manual frontend setup)
+- **Python 3.8+** (For manual backend setup)
 
-### Minimum Requirements
-- **OS**: Linux, macOS, or Windows 10+
-- **Python**: 3.8 or higher
-- **RAM**: 8GB (16GB recommended)
-- **Storage**: ~5GB for models and dependencies
-- **Node.js**: 18.x or higher (for frontend)
-- **Microphone**: Required for audio recording
+*Minimum System Specs:*
+- **RAM:** 8GB (16GB recommended for local processing)
+- **OS:** Linux, macOS, or Windows 10+
+- **Microphone:** Required if using direct recording scripts.
 
-### Recommended Requirements
-- **RAM**: 16GB or more
-- **GPU**: CUDA-compatible GPU (optional, for faster inference)
-- **Storage**: SSD with 10GB+ free space
+---
 
-## 🚀 Quick Start
+## Quick Start (Docker Compose)
 
-### Option 1: Full Stack Development
+The easiest way to get the entire full-stack application running is via Docker Compose.
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/GSMPRANEETH/TEAM-5.git
+   cd TEAM-5
+   ```
+
+2. **Set your NVIDIA API Key:**
+   You can either export it in your shell or create an `.env` file in the root directory.
+   ```bash
+   export NVIDIA_API_KEY="nvapi-your-key-here"
+   ```
+
+3. **Build and Run the Containers:**
+   ```bash
+   docker-compose up --build
+   ```
+
+4. **Access the Application:**
+   - **Frontend UI:** `http://localhost:5173`
+   - **Backend API Docs:** `http://localhost:8000/docs`
+
+---
+
+## Manual Setup (Alternative)
+
+If you prefer to run the services directly on your host machine without Docker:
+
+### 1. Backend Setup
 
 ```bash
-# Clone the repository
-git clone https://github.com/GSMPRANEETH/TEAM-5.git
-cd TEAM-5
-
-# Backend setup
+# Navigate to backend directory
 cd backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# Create and activate virtual environment
+python -m venv .venv
+source .venv/bin/activate  # Linux/macOS
+# On Windows CMD: .venv\Scripts\activate
+# On Windows PowerShell: .venv\Scripts\Activate.ps1
+
+# Install dependencies
 pip install -r requirements.txt
 
-# Install and start Ollama
-ollama pull mistral
+# Export your NVIDIA API Key
+export NVIDIA_API_KEY="nvapi-your-key-here"  # Windows CMD: set NVIDIA_API_KEY="nvapi-..."
 
-# Start backend API
-uvicorn api:app --reload --port 8000
-
-# In a new terminal - Frontend setup
-cd ../frontend
-npm install
-npm run dev
-```
-
-### Option 2: Backend Only
-
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python main.py  # Run standalone pipeline
-```
-
-## 📦 Installation
-
-### 1. Clone Repository
-
-```bash
-git clone https://github.com/GSMPRANEETH/TEAM-5.git
-cd TEAM-5
-```
-
-### 2. Backend Setup
-
-#### Create Virtual Environment
-
-```bash
-cd backend
-python -m venv venv
-
-# Activate virtual environment
-# Linux/macOS:
-source venv/bin/activate
-# Windows:
-venv\Scripts\activate
-```
-
-#### Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Install Ollama (Required for LLM)
-
-Ollama provides local LLM inference.
-
-**Linux/macOS:**
-```bash
-curl -fsSL https://ollama.ai/install.sh | sh
-```
-
-**Windows:**
-1. Download from [ollama.ai/download](https://ollama.ai/download)
-2. Run the installer
-3. Add Ollama to PATH:
-   - Open "Edit environment variables for your account"
-   - Add `C:\Users\%USERNAME%\AppData\Local\Programs\Ollama` to PATH
-   - Restart terminal
-
-**Verify Installation:**
-```bash
-ollama --version
-```
-
-#### Pull LLM Model
-
-```bash
-ollama pull mistral
-```
-
-### 4. Frontend Setup (Optional)
-
-```bash
-cd ../frontend
-npm install
-```
-
-### 5. Configuration
-
-Edit backend configuration files as needed:
-
-- `backend/llm1/llm_config.py` - LLM settings (model, temperature, max tokens)
-- `backend/rag/config.py` - RAG system configuration
-- `backend/evals/eval_config.py` - Evaluation criteria
-
-## 🎯 Usage
-
-### Running the Full Stack
-
-#### Start Backend API
-
-```bash
-cd backend
-source venv/bin/activate
+# Start the FastAPI server
 uvicorn api:app --reload --port 8000
 ```
 
-API will be available at: `http://localhost:8000`
-API docs: `http://localhost:8000/docs`
+### 2. Frontend Setup
 
-#### Start Frontend
+Open a new terminal session.
 
 ```bash
+# Navigate to frontend directory
 cd frontend
+
+# Install dependencies
+npm install
+
+# Start the Vite development server
 npm run dev
 ```
+Access the frontend at `http://localhost:5173`.
 
-Frontend will be available at: `http://localhost:5173`
+---
 
-### Running Backend Standalone
+## Usage & API
+
+### Standalone CLI Pipeline
+
+You can run the backend standalone script to preprocess and analyze an existing `raw_audio.wav` file from the terminal.
 
 ```bash
 cd backend
 python main.py
 ```
+This script preprocesses `raw_audio.wav`, runs transcription + analysis + agents via NVIDIA NIM, and prints the complete report.
 
-This will:
-1. Record 45 seconds of audio
-2. Process and analyze speech
-3. Generate comprehensive report
-4. Display results in terminal
+### REST API Usage
 
-### Using the API
+**Endpoint:** `POST /analyze`
+
+Analyze an uploaded audio file using curl or Python:
 
 ```python
 import requests
 
-# Upload audio file
-with open("audio.wav", "rb") as f:
+with open("sample_audio.wav", "rb") as f:
     response = requests.post(
         "http://localhost:8000/analyze",
         files={"file": f}
     )
 
-result = response.json()
-print(result)
+print(response.json())
 ```
 
-### Running Tests
-
-```bash
-cd backend
-
-# Test LLM connection
-python test_llm_step5.py
-
-# Test RAG system
-python test_rag.py
-
-# Run evaluations
-python -m evals.test_evals
-```
-
-## 📁 Project Structure
-
-```
-TEAM-5/
-├── backend/                      # Python backend
-│   ├── api.py                   # FastAPI application
-│   ├── main.py                  # Standalone pipeline
-│   ├── link.py                  # Pipeline orchestration
-│   ├── requirements.txt         # Python dependencies
-│   ├── README.md                # Backend documentation
-│   │
-│   ├── agents/                  # Multi-agent system
-│   │   ├── communication_agent.py
-│   │   ├── confidence_agent.py
-│   │   └── personality_agent.py
-│   │
-│   ├── llm/                     # LLM wrapper (agents)
-│   │   └── local_llm.py
-│   │
-│   ├── llm1/                    # LLM config & reporting
-│   │   ├── llm_config.py
-│   │   ├── local_llm.py
-│   │   ├── prompt_templates.py
-│   │   └── report_generator.py
-│   │
-│   ├── rag/                     # RAG system
-│   │   ├── config.py
-│   │   ├── retriever.py
-│   │   ├── knowledge_base.py
-│   │   ├── rag_pipeline.py
-│   │   └── documents/
-│   │
-│   ├── evals/                   # Evaluation framework
-│   │   ├── eval_config.py
-│   │   ├── eval_runner.py
-│   │   ├── eval_refinement.py
-│   │   └── test_evals.py
-│   │
-│   ├── utils/                   # Utilities
-│   │   ├── parser.py
-│   │   └── feature_scoring.py
-│   │
-│   ├── speech_to_text.py        # Whisper transcription
-│   ├── speech_features.py       # Acoustic analysis
-│   ├── record_audio.py          # Audio recording
-│   ├── preprocess_audio.py      # Audio preprocessing
-│   ├── guardrails_config.py     # Safety & validation
-│   └── agent.py                 # Agent orchestrator
-│
-├── frontend/                     # React frontend
-│   ├── src/                     # Source code
-│   │   ├── App.tsx
-│   │   └── components/
-│   ├── public/                  # Static assets
-│   ├── package.json
-│   ├── vite.config.ts
-│   └── README.md
-│
-└── README.md                     # This file
-```
-
-## 📚 API Documentation
-
-### Endpoints
-
-#### `POST /analyze`
-Analyze uploaded audio file.
-
-**Request:**
-```http
-POST /analyze HTTP/1.1
-Content-Type: multipart/form-data
-
-file: <audio_file>
-```
-
-**Response:**
+**Expected JSON Response:**
 ```json
 {
   "transcript": "...",
-  "audio_features": { ... },
-  "communication_analysis": { ... },
-  "confidence_emotion_analysis": { ... },
-  "personality_analysis": { ... },
+  "speech_metrics": { ... },
+  "confidence_score": 0.0,
+  "confidence_label": "...",
+  "agent_results": {
+    "communication_analysis": { ... },
+    "confidence_emotion_analysis": { ... },
+    "personality_analysis": { ... }
+  },
   "final_report": "..."
 }
 ```
 
-### Interactive API Docs
+---
 
-When the backend is running, visit:
-- Swagger UI: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc`
+## Project Structure
 
-## ⚙️ Configuration
+```text
+TEAM-5/
+├── docker-compose.yml       # Full-stack Docker orchestration
+├── backend/                 # FastAPI & AI Pipeline
+│   ├── api.py               # Main API endpoints
+│   ├── main.py              # CLI standalone pipeline script
+│   ├── pipeline.py          # Transcription + speech-feature analysis helpers
+│   ├── link.py              # API-facing orchestration (agents + RAG + final report)
+│   ├── agents/              # Multi-agent system (Comm, Conf, Pers)
+│   ├── llm/                 # NVIDIA LLM wrapper
+│   ├── llm1/                # Prompts, config, and report generation
+│   ├── rag/                 # RAG system & ChromaDB knowledge base
+│   ├── evals/               # Evaluation framework
+│   ├── requirements.txt     # Python dependencies
+│   └── Dockerfile
+└── frontend/                # React UI
+    ├── src/                 # Application source code
+    ├── package.json         # Node dependencies
+    └── Dockerfile
+```
 
-### LLM Configuration (`backend/llm1/llm_config.py`)
+---
+
+## Configuration
+
+You can customize the LLM behavior by modifying `backend/llm1/llm_config.py`:
 
 ```python
-LLM_MODEL_NAME = "mistral"  # Change model
-TEMPERATURE = 0.3            # Creativity (0.0-1.0)
-MAX_TOKENS = 512            # Max response length
+# Use available NVIDIA NIM models
+LLM_MODEL_NAME = "meta/llama3-8b-instruct"
+TEMPERATURE = 0.3
+MAX_TOKENS = 512
 ```
 
-### RAG Configuration (`backend/rag/config.py`)
+RAG Configuration can be found in `backend/rag/config.py`:
 
 ```python
-CHROMA_PERSIST_DIR = "./chroma_db"  # Vector DB storage
-TOP_K_RESULTS = 3                    # Documents to retrieve
+import os
+
+CHROMA_PERSIST_DIR = os.path.join(os.path.dirname(__file__), "chroma_db")
+TOP_K_RESULTS = 3
 ```
 
-### Recording Configuration (`backend/main.py`)
+Current runtime behavior: `backend/rag/retriever.py` initializes `chromadb.Client()` for in-memory retrieval (no persistence directory used by default).
 
-```python
-DURATION = 45        # Recording duration (seconds)
-SAMPLE_RATE = 16000  # Required for Whisper
-CHANNELS = 1         # Mono audio
-```
+---
 
-## 🛠️ Development
+## Testing & Quality Assessment
 
-### Backend Development
+Navigate to the `backend/` directory to run built-in test scripts:
 
-```bash
-cd backend
-source venv/bin/activate
+- **Test LLM Connection:** Ensure your NVIDIA API Key is valid and reachable.
+  ```bash
+  python test_llm_step5.py
+  ```
 
-# Run with auto-reload
-uvicorn api:app --reload
+- **Test RAG Integration:** Validates ChromaDB knowledge retrieval.
+  ```bash
+  python test_rag.py
+  ```
 
-# Run tests
-python -m pytest
+- **Code Formatting & Linting:**
+  Run the Husky hooks manually or let them run on commit.
+  ```bash
+  ruff check .
+  ```
 
-# Format code
-black .
-flake8 .
-```
+---
 
-### Frontend Development
+## Troubleshooting
 
-```bash
-cd frontend
+- **No NVIDIA API Key Found:**
+  Ensure you have set the `NVIDIA_API_KEY` environment variable. If missing, the backend will gracefully fallback to a deterministic "Stub LLM" that returns deterministic JSON for agent outputs and deterministic markdown text for the final report path.
 
-# Development server
-npm run dev
+- **Missing Audio Dependencies:**
+  If Faster-Whisper, openSMILE, Silero VAD, or Librosa fail to install or run, ensure you have system-level audio dependencies installed (like `ffmpeg` on Linux/macOS).
 
-# Build for production
-npm run build
+- **Docker Port Conflicts:**
+  If you see "address already in use" errors, ensure ports `8000` (FastAPI) and `5173` (Vite) are not occupied.
+  - **Linux/macOS (inspect first):**
+  ```bash
+  lsof -i:8000
+  ```
+  If the process is safe to terminate, run:
+  ```bash
+  kill -9 <PID>
+  ```
+  - **Windows PowerShell (inspect first):**
+  ```powershell
+  Get-NetTCPConnection -LocalPort 8000
+  ```
+  If the process is safe to terminate, run:
+  ```powershell
+  Stop-Process -Id <OwningProcess> -Force
+  ```
 
-# Preview production build
-npm run preview
-
-# Lint
-npm run lint
-```
-
-## 🧪 Testing & Evaluation
-
-### Built-in Evaluations
-
-The system includes a comprehensive evaluation framework:
-
-```bash
-cd backend
-python -m evals.test_evals
-```
-
-**Evaluation Criteria:**
-- Helpfulness, Relevance, Coherence
-- Actionability, Specificity, Accuracy
-- Completeness, Constructiveness
-
-### Manual Testing
-
-```bash
-# Test LLM connection
-python test_llm_step5.py
-
-# Test RAG retrieval
-python test_rag.py
-
-# Test full pipeline
-python main.py
-```
-
-## 🔧 Troubleshooting
-
-### Ollama Connection Issues
-
-**Error:** `Ollama not available`
-
-**Solution:**
-1. Ensure Ollama is running: `ollama serve`
-2. Check model is pulled: `ollama list`
-3. Pull model if needed: `ollama pull mistral`
-4. **Windows**: Verify Ollama is in PATH
-5. **Linux/macOS**: Check `which ollama`
-
-### Import Errors
-
-**Solution:**
-```bash
-# Ensure virtual environment is activated
-source venv/bin/activate  # or venv\Scripts\activate
-
-# Reinstall dependencies
-pip install -r requirements.txt
-```
-
-### Memory Issues
-
-**Solution:**
-- Use smaller LLM model
-- Reduce `MAX_TOKENS` in configuration
-- Close other applications
-- Upgrade to 16GB+ RAM
-
-### ChromaDB Issues
-
-**Solution:**
-```bash
-# Clear database
-rm -rf backend/chroma_db/
-
-# Restart backend
-```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Development Guidelines
-
-- Follow PEP 8 for Python code
-- Use TypeScript for frontend code
-- Add tests for new features
-- Update documentation
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Faster-Whisper**: OpenAI Whisper implementation
-- **Ollama**: Local LLM runtime
-- **LangChain**: LLM application framework
-- **ChromaDB**: Vector database for AI
-- **FastAPI**: Modern Python web framework
-- **React**: UI library
-
-## 📞 Support
-
-For issues and questions:
-- Open an issue on [GitHub](https://github.com/GSMPRANEETH/TEAM-5/issues)
-- Contact: [Project Team]
-
-## 🌟 Fixes & Updates
-- Resolved issue where the front end report was not being generated correctly by ensuring backend mock LLM schema strictly follows the expected prompt schema output patterns.
-- Added safeguards in local_llm wrappers when API keys are not supplied.
-
-## 🗺️ Roadmap
-
-- [ ] Support for additional LLM providers
-- [ ] Multi-language support
-- [ ] Real-time streaming analysis
-- [ ] Advanced visualization dashboards
-- [ ] Mobile app
-- [ ] Docker containerization
-- [ ] Cloud deployment guide
+- **Ruff Linting Paths Collision:**
+  Use the repository-supported Ruff invocation from inside the `backend` folder:
+  ```bash
+  python -m ruff check .
+  ```
 
 ---
 
 **Built with ❤️ by TEAM-5**
-(chatgpt)[https://chatgpt.com/g/g-p-693cf63b3d608191a200ca21f1c5f7e2-tts/project]
-(perplexity)[https://www.perplexity.ai/spaces/tts-1gnsM.HoSV.NHB6HbWS31g#0]
+
+Additional resources:
+- [Project ChatGPT Assistant](https://chatgpt.com/g/g-p-693cf63b3d608191a200ca21f1c5f7e2-tts/project)
+- [Perplexity TTS Space](https://www.perplexity.ai/spaces/tts-1gnsM.HoSV.NHB6HbWS31g#0)
