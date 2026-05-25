@@ -1,4 +1,4 @@
-# TEAM-5 Speech Analysis Pipeline
+# 🎙️ TEAM-5 Speech Analysis Pipeline
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.95+-green.svg)](https://fastapi.tiangolo.com/)
@@ -35,7 +35,7 @@ TEAM-5 provides a full-stack speech processing pipeline that combines state-of-t
 ### AI & Backend (Python/FastAPI)
 - **Audio Processing:** Multi-format audio support with built-in recording capabilities.
 - **Speech-to-Text:** Fast transcription utilizing Faster-Whisper.
-- **Acoustic Feature Extraction:** Detailed analysis (pitch, energy, speaking rate, pauses) using PyAnnote and openSMILE.
+- **Acoustic Feature Extraction:** Detailed analysis (pitch, energy, speaking rate, pauses) using openSMILE, Silero VAD, and librosa.
 - **NVIDIA NIM Integration:** Utilizes `meta/llama3-8b-instruct` (configurable) via `langchain-nvidia-ai-endpoints` for ultra-fast, intelligent analysis.
 - **Multi-Agent System:** Specialized agents for evaluating **Communication**, **Confidence**, and **Personality**.
 - **RAG System:** ChromaDB-backed knowledge retrieval for domain-specific insights.
@@ -137,8 +137,8 @@ If you prefer to run the services directly on your host machine without Docker:
 cd backend
 
 # Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -172,13 +172,13 @@ Access the frontend at `http://localhost:5173`.
 
 ### Standalone CLI Pipeline
 
-You can run the backend standalone script to record audio from your microphone and immediately process it in the terminal.
+You can run the backend standalone script to preprocess and analyze an existing `raw_audio.wav` file from the terminal.
 
 ```bash
 cd backend
 python main.py
 ```
-This script will record audio for 45 seconds, process the file, run the agents via NVIDIA NIM, and print out the complete report.
+This script preprocesses `raw_audio.wav`, runs transcription + analysis + agents via NVIDIA NIM, and prints the complete report.
 
 ### REST API Usage
 
@@ -202,10 +202,14 @@ print(response.json())
 ```json
 {
   "transcript": "...",
-  "audio_features": { ... },
-  "communication_analysis": { ... },
-  "confidence_emotion_analysis": { ... },
-  "personality_analysis": { ... },
+  "speech_metrics": { ... },
+  "confidence_score": 0.0,
+  "confidence_label": "...",
+  "agent_results": {
+    "communication_analysis": { ... },
+    "confidence_emotion_analysis": { ... },
+    "personality_analysis": { ... }
+  },
   "final_report": "..."
 }
 ```
@@ -220,7 +224,8 @@ TEAM-5/
 ├── backend/                 # FastAPI & AI Pipeline
 │   ├── api.py               # Main API endpoints
 │   ├── main.py              # CLI standalone pipeline script
-│   ├── pipeline.py          # Core pipeline orchestration
+│   ├── pipeline.py          # Transcription + speech-feature analysis helpers
+│   ├── link.py              # API-facing orchestration (agents + RAG + final report)
 │   ├── agents/              # Multi-agent system (Comm, Conf, Pers)
 │   ├── llm/                 # NVIDIA LLM wrapper
 │   ├── llm1/                # Prompts, config, and report generation
@@ -250,9 +255,13 @@ MAX_TOKENS = 512
 RAG Configuration can be found in `backend/rag/config.py`:
 
 ```python
-CHROMA_PERSIST_DIR = "./chroma_db"
+import os
+
+CHROMA_PERSIST_DIR = os.path.join(os.path.dirname(__file__), "chroma_db")
 TOP_K_RESULTS = 3
 ```
+
+Current runtime behavior: `backend/rag/retriever.py` initializes `chromadb.Client()` for in-memory retrieval (no persistence directory used by default).
 
 ---
 
@@ -284,12 +293,25 @@ Navigate to the `backend/` directory to run built-in test scripts:
   Ensure you have set the `NVIDIA_API_KEY` environment variable. If missing, the backend will gracefully fallback to a deterministic "Stub LLM" which generates mock JSON strings for testing purposes.
 
 - **Missing Audio Dependencies:**
-  If Faster-Whisper, PyAnnote, or Librosa fail to install or run, ensure you have system-level audio dependencies installed (like `ffmpeg` on Linux/macOS).
+  If Faster-Whisper, openSMILE, Silero VAD, or Librosa fail to install or run, ensure you have system-level audio dependencies installed (like `ffmpeg` on Linux/macOS).
 
 - **Docker Port Conflicts:**
-  If you see "address already in use" errors, ensure ports `8000` (FastAPI) and `5173` (Vite) are not occupied. Kill the process occupying them:
+  If you see "address already in use" errors, ensure ports `8000` (FastAPI) and `5173` (Vite) are not occupied.
+  - **Linux/macOS (inspect first):**
   ```bash
-  kill -9 $(lsof -t -i:8000)
+  lsof -i:8000
+  ```
+  If the process is safe to terminate, run:
+  ```bash
+  kill -9 <PID>
+  ```
+  - **Windows PowerShell (inspect first):**
+  ```powershell
+  Get-NetTCPConnection -LocalPort 8000
+  ```
+  If the process is safe to terminate, run:
+  ```powershell
+  Stop-Process -Id <OwningProcess> -Force
   ```
 
 - **Ruff Linting Paths Collision:**
@@ -297,4 +319,7 @@ Navigate to the `backend/` directory to run built-in test scripts:
 
 ---
 
-**Built with by TEAM-5**
+**Built with ❤️ by TEAM-5**
+
+[chatgpt](https://chatgpt.com/g/g-p-693cf63b3d608191a200ca21f1c5f7e2-tts/project)
+[perplexity](https://www.perplexity.ai/spaces/tts-1gnsM.HoSV.NHB6HbWS31g#0)
