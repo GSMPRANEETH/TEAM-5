@@ -323,5 +323,6 @@ Navigate to the `backend/` directory to run built-in test scripts:
 
 **Built with ❤️ by TEAM-5**
 
-[Project ChatGPT Assistant](https://chatgpt.com/g/g-p-693cf63b3d608191a200ca21f1c5f7e2-tts/project)
-[Perplexity TTS Space](https://www.perplexity.ai/spaces/tts-1gnsM.HoSV.NHB6HbWS31g#0)
+Additional resources:
+- [Project ChatGPT Assistant](https://chatgpt.com/g/g-p-693cf63b3d608191a200ca21f1c5f7e2-tts/project)
+- [Perplexity TTS Space](https://www.perplexity.ai/spaces/tts-1gnsM.HoSV.NHB6HbWS31g#0)
