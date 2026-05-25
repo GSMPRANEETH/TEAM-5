@@ -292,7 +292,7 @@ Navigate to the `backend/` directory to run built-in test scripts:
 ## Troubleshooting
 
 - **No NVIDIA API Key Found:**
-  Ensure you have set the `NVIDIA_API_KEY` environment variable. If missing, the backend will gracefully fallback to a deterministic "Stub LLM" which generates mock JSON strings for testing purposes.
+  Ensure you have set the `NVIDIA_API_KEY` environment variable. If missing, the backend will gracefully fallback to a deterministic "Stub LLM" that returns deterministic JSON for agent outputs and deterministic markdown text for the final report path.
 
 - **Missing Audio Dependencies:**
   If Faster-Whisper, openSMILE, Silero VAD, or Librosa fail to install or run, ensure you have system-level audio dependencies installed (like `ffmpeg` on Linux/macOS).
@@ -317,7 +317,10 @@ Navigate to the `backend/` directory to run built-in test scripts:
   ```
 
 - **Ruff Linting Paths Collision:**
-  Ruff should be executed directly via `ruff check .` from inside the `backend` folder, not `python -m ruff`, to avoid pathing collisions with the internal `backend/types` module.
+  Use the repository-supported Ruff invocation from inside the `backend` folder:
+  ```bash
+  python -m ruff check .
+  ```
 
 ---
 
