@@ -16,10 +16,16 @@ def extract_audio_from_video(video_path: str) -> str:
     """
     Extracts audio from the provided video file and saves it as a WAV file.
     Returns the path to the newly created WAV file.
+
+    Raises:
+        ValueError: If the video has no audio track
     """
     audio_path = video_path.rsplit(".", 1)[0] + "_extracted_audio.wav"
     try:
         with VideoFileClip(video_path) as video:
+            # Check if audio track exists
+            if getattr(video, "audio", None) is None:
+                raise ValueError("Video file has no audio track. Cannot perform speech analysis.")
             # We don't want logs blocking the terminal
             video.audio.write_audiofile(audio_path, logger=None)
         logger.info(f"Successfully extracted audio to: {audio_path}")
@@ -32,17 +38,17 @@ async def analyze_video_visuals(video_path: str) -> Dict[str, Any]:
     """
     Uses Gemini Vision API to analyze the visual aspects of the video
     (e.g., eye contact, facial expressions, body language, lighting).
+
+    Raises:
+        RuntimeError: If GEMINI_API_KEY is not configured
     """
-    # If there's no API key, return a stub response
+    # If there's no API key, raise an error
     if not GEMINI_API_KEY:
-        logger.warning("No GEMINI_API_KEY found, returning stub visual analysis.")
-        return {
-            "eye_contact_score": 85,
-            "body_language": "Good posture, appropriate hand gestures.",
-            "facial_expressions": "Smiling frequently, conveying confidence.",
-            "lighting_and_framing": "Well-lit and centered.",
-            "overall_visual_feedback": "You present yourself very professionally on camera. Maintain this level of engagement."
-        }
+        logger.warning("GEMINI_API_KEY not configured. Visual analysis is unavailable.")
+        raise RuntimeError(
+            "Video visual analysis requires GEMINI_API_KEY to be configured. "
+            "Please set the GEMINI_API_KEY environment variable."
+        )
 
     try:
         client = genai.Client(api_key=GEMINI_API_KEY)
@@ -85,14 +91,14 @@ async def analyze_video_visuals(video_path: str) -> Dict[str, Any]:
         return result
 
     except Exception as e:
-        logger.error(f"Error during Gemini visual analysis: {e}")
-        # Fallback to stub on error to not break the pipeline
+        logger.exception(f"Error during Gemini visual analysis: {e}")
+        # Return a generic error response without exposing internal details
         return {
             "eye_contact_score": 0,
-            "body_language": "Analysis failed due to API error.",
-            "facial_expressions": "Analysis failed due to API error.",
-            "lighting_and_framing": "Analysis failed due to API error.",
-            "overall_visual_feedback": f"Could not analyze video. Error: {str(e)}"
+            "body_language": "Could not analyze visual aspects due to an internal error.",
+            "facial_expressions": "Could not analyze visual aspects due to an internal error.",
+            "lighting_and_framing": "Could not analyze visual aspects due to an internal error.",
+            "overall_visual_feedback": "Could not analyze video due to an internal error. Please try again later."
         }
 
 async def run_video_pipeline(video_path: str) -> Dict[str, Any]:

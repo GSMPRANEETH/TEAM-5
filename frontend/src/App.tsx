@@ -71,7 +71,7 @@ function App() {
         setDuration(prev => prev + 1);
       }, 1000);
 
-    } catch (err: Error | unknown) {
+    } catch (err: unknown) {
       console.error("Microphone error:", err);
       setError("Microphone access denied or not available. Please check permissions.");
     }
@@ -108,9 +108,10 @@ function App() {
 
       const data = await response.json();
       setResult(data);
-    } catch (err: Error | unknown) {
+    } catch (err: unknown) {
       console.error("Upload error:", err);
-      setError((err as Error).message || "An error occurred during analysis. Make sure the backend server is running.");
+      const errorMessage = err instanceof Error ? err.message : "An error occurred during analysis. Make sure the backend server is running.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -133,8 +134,9 @@ function App() {
 
       const data = await response.json();
       setResult(data);
-    } catch (err: Error | unknown) {
-      setError((err as Error).message || "An error occurred during video analysis.");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "An error occurred during video analysis.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -231,10 +233,10 @@ function App() {
                 Provide Media
               </CardTitle>
               <div className="flex gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
-                <Button variant={uploadMode === 'audio' ? 'default' : 'ghost'} size="sm" onClick={() => setUploadMode('audio')} className={uploadMode === 'audio' ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : ''}>
+                <Button variant={uploadMode === 'audio' ? 'default' : 'ghost'} size="sm" onClick={() => setUploadMode('audio')} disabled={recording} className={uploadMode === 'audio' ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : ''}>
                   Audio
                 </Button>
-                <Button variant={uploadMode === 'video' ? 'default' : 'ghost'} size="sm" onClick={() => setUploadMode('video')} className={uploadMode === 'video' ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : ''}>
+                <Button variant={uploadMode === 'video' ? 'default' : 'ghost'} size="sm" onClick={() => setUploadMode('video')} disabled={recording} className={uploadMode === 'video' ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : ''}>
                   Video
                 </Button>
               </div>

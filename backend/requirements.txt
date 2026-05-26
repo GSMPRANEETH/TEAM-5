@@ -77,8 +77,5 @@ ruff>=0.1.0
 # ===============================
 black>=24.0.0
 
-google-genai
-moviepy
-
-google-genai
-moviepy
+google-genai==2.6.0
+moviepy==2.2.1

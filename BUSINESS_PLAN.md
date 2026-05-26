@@ -28,7 +28,7 @@ To generate revenue while keeping the core analysis free:
 1. **Free Tier (Current Offering):**
    - Unlimited standard audio/video analysis.
    - Core personality, confidence, and communication metrics.
-   - Ad-supported interface (banner ads, unobtrusive sidebar ads).
+   - Ad-supported interface (planned/roadmap - banner ads, unobtrusive sidebar ads).
 
 2. **Pro Tier (Premium Subscriptions):**
    - Detailed historical tracking and progress graphs.
