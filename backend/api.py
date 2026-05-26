@@ -11,6 +11,7 @@ from typing import Dict, Any
 from validators.file_validator import validate_audio_file
 from record_audio import record_audio
 from link import run_pipeline
+from video_pipeline import run_video_pipeline
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -106,3 +107,50 @@ async def analyze_audio(file: UploadFile = File(...)) -> Dict[str, Any]:
                 except Exception as e:
                     logger.warning(f"Failed to cleanup file {temp_file}: {e}")
 
+@app.post("/analyze-video")
+async def analyze_video(file: UploadFile = File(...)) -> Dict[str, Any]:
+    """
+    Analyze uploaded video file for visual cues and extract audio for standard analysis.
+
+    Args:
+        file: Video file upload (MP4, WebM, etc.)
+
+    Returns:
+        Dictionary containing analysis results including transcript,
+        speech metrics, visual metrics, agent analyses, and final report
+    """
+    # For a robust solution, we would add validate_video_file, but for now we rely on the extension.
+    if not file.filename.lower().endswith(('.mp4', '.webm', '.mov', '.avi')):
+         raise HTTPException(status_code=400, detail="Invalid video format. Please upload MP4, WebM, MOV, or AVI.")
+
+    video_path = os.path.join(UPLOAD_DIR, f"temp_video_{file.filename}")
+
+    try:
+        # Save the uploaded video to disk temporarily
+        with open(video_path, "wb") as f:
+            f.write(await file.read())
+
+        logger.info(f"Processing video file: {file.filename}")
+
+        # Run the video analysis pipeline
+        result = await run_video_pipeline(video_path)
+
+        logger.info(f"Video analysis completed successfully for: {file.filename}")
+        return result
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception(f"Error processing video file {file.filename}: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error processing video file"
+        )
+    finally:
+        # Cleanup: Remove the temporary video file
+        if video_path and os.path.exists(video_path):
+            try:
+                os.remove(video_path)
+                logger.debug(f"Cleaned up temporary video file: {video_path}")
+            except Exception as e:
+                logger.warning(f"Failed to cleanup video file {video_path}: {e}")
