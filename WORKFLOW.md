@@ -26,7 +26,7 @@ graph TD
         APA --> STT[Faster-Whisper STT]
         STT -->|Transcript| AgentOrch{Agent Orchestrator}
 
-        APA --> AcousticFeat[Librosa / OpenSMILE / Silero]
+        APA --> AcousticFeat[Librosa / OpenSMILE]
         AcousticFeat -->|Speech Rate, Pitch, Energy| AgentOrch
     end
 
@@ -66,9 +66,8 @@ graph TD
 
 ### Phase B: Audio Extraction & Transcription
 3. **Acoustic Feature Extraction:** The audio file is analyzed using local, open-source models:
-   - **Silero VAD** detects voice activity and segments the audio.
    - **Librosa** measures pitch variance, volume, and speech rate.
-   - **OpenSMILE** (optional) extracts deeper emotional characteristics.
+   - **OpenSMILE** extracts deeper acoustic and emotional characteristics including loudness, pitch, jitter, and shimmer.
 4. **Speech-to-Text:** The audio is transcribed using **Faster-Whisper** to generate a highly accurate text transcript with word-level timestamps.
 
 ### Phase C: Retrieval-Augmented Generation (RAG)
