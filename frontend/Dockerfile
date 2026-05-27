@@ -5,6 +5,7 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm install
 
+
 COPY . .
 
 # Create non-root user and set ownership

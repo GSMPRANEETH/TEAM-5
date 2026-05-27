@@ -13,7 +13,7 @@
       "npm run lint --prefix frontend"
     ],
     "backend/**/*.py": [
-      "bash -c 'cd backend && ./.venv/bin/black \"$@\"' --",
+      "bash -c 'cd backend && python -m black \"$@\"' --",
       "bash -c 'cd backend && ruff check \"$@\"' --"
     ]
   }
