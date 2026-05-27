@@ -5,6 +5,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.concurrency import run_in_threadpool
 import os
+import tempfile
 import logging
 from typing import Dict, Any
 
@@ -50,6 +51,15 @@ app.add_middleware(
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+ALLOWED_VIDEO_EXTENSIONS = {".mp4", ".webm", ".mov", ".avi"}
+ALLOWED_VIDEO_TYPES = {
+    "video/mp4",
+    "video/webm",
+    "video/quicktime",
+    "video/x-msvideo",
+}
+MAX_VIDEO_SIZE_BYTES = 50 * 1024 * 1024
+VIDEO_UPLOAD_CHUNK_SIZE = 1024 * 1024
 
 
 @app.get("/health")
@@ -121,32 +131,58 @@ async def analyze_video(file: UploadFile = File(...)) -> Dict[str, Any]:
         Dictionary containing analysis results including transcript,
         speech metrics, visual metrics, agent analyses, and final report
     """
-    # For a robust solution, we would add validate_video_file, but for now we rely on the extension.
-    if not file.filename.lower().endswith((".mp4", ".webm", ".mov", ".avi")):
+    filename = file.filename or ""
+    extension = os.path.splitext(filename)[1].lower()
+    if extension not in ALLOWED_VIDEO_EXTENSIONS:
         raise HTTPException(
             status_code=400,
             detail="Invalid video format. Please upload MP4, WebM, MOV, or AVI.",
         )
+    if file.content_type not in ALLOWED_VIDEO_TYPES:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid video content type. Please upload a valid video file.",
+        )
 
-    video_path = os.path.join(UPLOAD_DIR, f"temp_video_{file.filename}")
+    video_path = None
 
     try:
-        # Save the uploaded video to disk temporarily
-        with open(video_path, "wb") as f:
-            f.write(await file.read())
+        total_bytes = 0
+        with tempfile.NamedTemporaryFile(
+            mode="wb",
+            delete=False,
+            dir=UPLOAD_DIR,
+            prefix="temp_video_",
+            suffix=extension,
+        ) as temp_video:
+            video_path = temp_video.name
+            while chunk := await file.read(VIDEO_UPLOAD_CHUNK_SIZE):
+                total_bytes += len(chunk)
+                if total_bytes > MAX_VIDEO_SIZE_BYTES:
+                    raise HTTPException(
+                        status_code=413,
+                        detail="Video file too large. Maximum size is 50MB.",
+                    )
+                temp_video.write(chunk)
 
-        logger.info(f"Processing video file: {file.filename}")
+        if total_bytes == 0:
+            raise HTTPException(status_code=400, detail="Uploaded video file is empty.")
+
+        logger.info(f"Processing video file: {filename}")
 
         # Run the video analysis pipeline
         result = await run_video_pipeline(video_path)
 
-        logger.info(f"Video analysis completed successfully for: {file.filename}")
+        logger.info(f"Video analysis completed successfully for: {filename}")
         return result
 
     except HTTPException:
         raise
+    except ValueError as e:
+        logger.warning(f"Invalid video content for {filename}: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        logger.exception(f"Error processing video file {file.filename}: {e}")
+        logger.exception(f"Error processing video file {filename}: {e}")
         raise HTTPException(
             status_code=500, detail="Internal server error processing video file"
         )

@@ -42,8 +42,20 @@ export function VideoUpload({ onVideoSelect, disabled }: VideoUploadProps) {
     e.preventDefault();
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setSelectedFile(file);
-      onVideoSelect(file);
+      if (file.type.startsWith("video/")) {
+        setSelectedFile(file);
+        onVideoSelect(file);
+      } else {
+        alert("Please upload a valid video file (MP4, WebM, etc.)");
+      }
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (disabled) return;
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      inputRef.current?.click();
     }
   };
 
@@ -85,6 +97,9 @@ export function VideoUpload({ onVideoSelect, disabled }: VideoUploadProps) {
 
   return (
     <div
+      role="button"
+      tabIndex={disabled ? -1 : 0}
+      aria-disabled={disabled}
       className={`relative flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-xl transition-all ${
         dragActive
           ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/10"
@@ -95,6 +110,7 @@ export function VideoUpload({ onVideoSelect, disabled }: VideoUploadProps) {
       onDragOver={handleDrag}
       onDrop={disabled ? undefined : handleDrop}
       onClick={() => !disabled && inputRef.current?.click()}
+      onKeyDown={handleKeyDown}
     >
       <input
         ref={inputRef}

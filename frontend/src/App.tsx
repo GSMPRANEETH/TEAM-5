@@ -276,6 +276,7 @@ function App() {
                   variant={uploadMode === "audio" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setUploadMode("audio")}
+                  disabled={loading || recording}
                   className={
                     uploadMode === "audio"
                       ? "bg-indigo-600 hover:bg-indigo-700 text-white"
@@ -288,6 +289,7 @@ function App() {
                   variant={uploadMode === "video" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setUploadMode("video")}
+                  disabled={loading || recording}
                   className={
                     uploadMode === "video"
                       ? "bg-indigo-600 hover:bg-indigo-700 text-white"

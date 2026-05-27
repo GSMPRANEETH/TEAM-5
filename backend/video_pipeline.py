@@ -21,6 +21,8 @@ def extract_audio_from_video(video_path: str) -> str:
     audio_path = video_path.rsplit(".", 1)[0] + "_extracted_audio.wav"
     try:
         with VideoFileClip(video_path) as video:
+            if video.audio is None:
+                raise ValueError("Uploaded video has no audio track.")
             # We don't want logs blocking the terminal
             video.audio.write_audiofile(audio_path, logger=None)
         logger.info(f"Successfully extracted audio to: {audio_path}")
@@ -37,13 +39,15 @@ async def analyze_video_visuals(video_path: str) -> Dict[str, Any]:
     """
     # If there's no API key, return a stub response
     if not GEMINI_API_KEY:
-        logger.warning("No GEMINI_API_KEY found, returning stub visual analysis.")
+        logger.warning(
+            "No GEMINI_API_KEY found, returning unavailable visual analysis status."
+        )
         return {
-            "eye_contact_score": 85,
-            "body_language": "Good posture, appropriate hand gestures.",
-            "facial_expressions": "Smiling frequently, conveying confidence.",
-            "lighting_and_framing": "Well-lit and centered.",
-            "overall_visual_feedback": "You present yourself very professionally on camera. Maintain this level of engagement.",
+            "eye_contact_score": 0,
+            "body_language": "Visual analysis unavailable.",
+            "facial_expressions": "Visual analysis unavailable.",
+            "lighting_and_framing": "Visual analysis unavailable.",
+            "overall_visual_feedback": "Visual analysis is unavailable because the Gemini API key is not configured.",
         }
 
     try:
@@ -94,7 +98,7 @@ async def analyze_video_visuals(video_path: str) -> Dict[str, Any]:
             "body_language": "Analysis failed due to API error.",
             "facial_expressions": "Analysis failed due to API error.",
             "lighting_and_framing": "Analysis failed due to API error.",
-            "overall_visual_feedback": f"Could not analyze video. Error: {str(e)}",
+            "overall_visual_feedback": "Could not analyze video due to a temporary service error.",
         }
 
 
