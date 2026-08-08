@@ -1,4 +1,4 @@
-# 🎙️ TEAM-5 Speech Analysis Pipeline
+#  TEAM-5 Speech Analysis Pipeline
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.95+-green.svg)](https://fastapi.tiangolo.com/)
@@ -7,6 +7,10 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 An advanced AI-powered speech analysis system that provides real-time personality insights and communication feedback. Built with a robust multi-agent AI architecture powered by **NVIDIA NIM** LLMs and enhanced by Retrieval-Augmented Generation (RAG).
+
+## Live Deployment
+
+The application is live and accessible on Hugging Face Spaces: [TEAM-5 AuraSync](https://huggingface.co/spaces/DarthVader69/TEAM5)
 
 ## Table of Contents
 
@@ -34,11 +38,13 @@ TEAM-5 provides a full-stack speech processing pipeline that combines state-of-t
 
 ### AI & Backend (Python/FastAPI)
 - **Audio Processing:** Multi-format audio support with built-in recording capabilities.
+- **Video Analysis:** Visual cue extraction (eye contact, posture, expressions) via Gemini 1.5 Flash Vision API.
 - **Speech-to-Text:** Fast transcription utilizing Faster-Whisper.
 - **Acoustic Feature Extraction:** Detailed analysis (pitch, energy, speaking rate, pauses) using openSMILE, Silero VAD, and librosa.
 - **NVIDIA NIM Integration:** Utilizes `meta/llama3-8b-instruct` (configurable) via `langchain-nvidia-ai-endpoints` for ultra-fast, intelligent analysis.
 - **Multi-Agent System:** Specialized agents for evaluating **Communication**, **Confidence**, and **Personality**.
 - **RAG System:** ChromaDB-backed knowledge retrieval for domain-specific insights.
+- **Guardrails & Evaluations:** Integrated validation and evaluation framework to ensure structured, robust output.
 
 ### Frontend (React/Vite)
 - **Modern Stack:** React 19 + TypeScript + TailwindCSS.
@@ -52,11 +58,19 @@ The system is split into a React frontend and a FastAPI backend. The entire proc
 
 ```mermaid
 graph TD
-    User([User]) -->|Uploads/Records Audio| Frontend
-    Frontend[React Frontend] -->|POST /analyze| API[FastAPI Backend]
+    User([User]) -->|Uploads/Records Audio or Video| Frontend
+    Frontend[React Frontend] -->|POST /analyze| API_Audio[Audio Endpoint]
+    Frontend -->|POST /analyze-video| API_Video[Video Endpoint]
+
+    subgraph Video Pipeline
+        API_Video --> Gemini[Gemini 1.5 Flash Vision API]
+        Gemini -->|Visual Metrics| VisualOut[Visual Cues]
+        API_Video --> Ext[Audio Extraction via MoviePy]
+        Ext --> API_Audio
+    end
 
     subgraph Backend Pipeline
-        API --> Preprocessor[Audio Preprocessing]
+        API_Audio --> Preprocessor[Audio Preprocessing]
         Preprocessor --> STT[Faster-Whisper STT]
         Preprocessor --> AudioFeat[Acoustic Feature Extraction]
         STT --> AgentOrch{Agent Orchestrator}
@@ -74,11 +88,13 @@ graph TD
         ConfAgent --> NvidiaLLM
         PersAgent --> NvidiaLLM
 
-        NvidiaLLM --> ReportGen[Final Report Generator]
+        NvidiaLLM --> Guardrails[Guardrails JSON Validation]
+        Guardrails --> ReportGen[Final Report Generator]
     end
 
-    ReportGen --> API
-    API -->|JSON Result| Frontend
+    VisualOut --> ReportGen
+    ReportGen --> API_Response[JSON Response]
+    API_Response --> Frontend
     Frontend -->|Visualized Insights| User
 ```
 
@@ -324,7 +340,7 @@ Navigate to the `backend/` directory to run built-in test scripts:
 
 ---
 
-**Built with ❤️ by TEAM-5**
+**Built with  by TEAM-5**
 
 Additional resources:
 - [Project ChatGPT Assistant](https://chatgpt.com/g/g-p-693cf63b3d608191a200ca21f1c5f7e2-tts/project)

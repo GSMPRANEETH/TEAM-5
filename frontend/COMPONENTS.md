@@ -10,17 +10,17 @@ This frontend application implements a modern, accessible UI for the AI Speech P
 
 ```
 src/components/
-├── atoms/          # Basic building blocks
-│   ├── Button.tsx
-│   ├── Badge.tsx
-│   ├── LoadingSpinner.tsx
-│   └── ConfidenceScore.tsx
-├── molecules/      # Combinations of atoms
-│   ├── AgentCard.tsx
-│   └── ProgressBar.tsx
-└── organisms/      # Complex feature components
-    ├── AudioRecorderEnhanced.tsx
-    └── ResultsPanel.tsx
+ atoms/          # Basic building blocks
+    Button.tsx
+    Badge.tsx
+    LoadingSpinner.tsx
+    ConfidenceScore.tsx
+ molecules/      # Combinations of atoms
+    AgentCard.tsx
+    ProgressBar.tsx
+ organisms/      # Complex feature components
+     AudioRecorderEnhanced.tsx
+     ResultsPanel.tsx
 ```
 
 ## Component Usage
@@ -213,12 +213,12 @@ Dark mode is automatically detected from system preferences and can be toggled m
 
 All components follow WCAG 2.1 AA guidelines:
 
-- ✅ Semantic HTML structure
-- ✅ ARIA labels for interactive elements
-- ✅ Keyboard navigation support
-- ✅ Focus indicators
-- ✅ Color contrast >= 4.5:1
-- ✅ Screen reader friendly
+-  Semantic HTML structure
+-  ARIA labels for interactive elements
+-  Keyboard navigation support
+-  Focus indicators
+-  Color contrast >= 4.5:1
+-  Screen reader friendly
 
 ### Keyboard Navigation
 - `Tab` - Navigate between elements
@@ -241,11 +241,11 @@ The UI is fully responsive with breakpoints:
 
 ## Performance
 
-- ✅ Code splitting with lazy loading ready
-- ✅ Optimized bundle size
-- ✅ React.memo for expensive components
-- ✅ Debounced inputs (where applicable)
-- ✅ Virtual scrolling ready (for long lists)
+-  Code splitting with lazy loading ready
+-  Optimized bundle size
+-  React.memo for expensive components
+-  Debounced inputs (where applicable)
+-  Virtual scrolling ready (for long lists)
 
 ## Development
 
