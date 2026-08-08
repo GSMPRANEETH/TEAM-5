@@ -45,7 +45,8 @@ graph TD
         ConfAg -.-> Llama
         PersAg -.-> Llama
 
-        Llama -->|Structured JSON Feedback| ReportGen[Final Report Generator]
+        Llama --> Guardrails[Guardrails JSON Validation]
+        Guardrails --> ReportGen[Final Report Generator]
     end
 
     VisualOut --> ReportGen
