@@ -7,27 +7,39 @@ import torch
 # ---------------------------
 
 # openSMILE feature extractor (standardized acoustic features)
-smile = opensmile.Smile(
-    feature_set=opensmile.FeatureSet.eGeMAPSv02,
-    feature_level=opensmile.FeatureLevel.Functionals,
-)
+try:
+    smile = opensmile.Smile(
+        feature_set=opensmile.FeatureSet.eGeMAPSv02,
+        feature_level=opensmile.FeatureLevel.Functionals,
+    )
+except Exception as e:
+    print(f"⚠️ Failed to initialize openSMILE: {e}")
+    smile = None
 
 # ---------------------------
 # Silero VAD (Offline, Stable)
 # ---------------------------
-vad_model, vad_utils = torch.hub.load(
-    repo_or_dir="snakers4/silero-vad",
-    model="silero_vad",
-    trust_repo=True
-)
+try:
+    vad_model, vad_utils = torch.hub.load(
+        repo_or_dir="snakers4/silero-vad",
+        model="silero_vad",
+        trust_repo=True
+    )
+except Exception as e:
+    print(f"⚠️ Failed to load Silero VAD model: {e}")
+    vad_model = None
+    vad_utils = None
 
-(
-    get_speech_timestamps,
-    save_audio,
-    read_audio,
-    VADIterator,
-    collect_chunks
-) = vad_utils
+if vad_utils is not None:
+    (
+        get_speech_timestamps,
+        save_audio,
+        read_audio,
+        VADIterator,
+        collect_chunks
+    ) = vad_utils
+else:
+    get_speech_timestamps = save_audio = read_audio = VADIterator = collect_chunks = None
 
 
 def compute_pause_ratio(audio_path, sampling_rate=16000):
@@ -35,6 +47,11 @@ def compute_pause_ratio(audio_path, sampling_rate=16000):
     Computes pause ratio using Silero VAD
     pause_ratio = non-speech duration / total duration
     """
+    # If VAD model is not available, return default values
+    if vad_model is None or get_speech_timestamps is None:
+        print("⚠️ Silero VAD model not available, returning default pause ratio")
+        return 0.0, 0.0
+
     wav = read_audio(audio_path, sampling_rate=sampling_rate)
 
     speech_timestamps = get_speech_timestamps(
@@ -78,38 +95,46 @@ def analyze_speech(audio_file, word_segments):
     # -----------------------
     # Acoustic Features (openSMILE)
     # -----------------------
-    features = smile.process_file(audio_file)
+    if smile is None:
+        print("⚠️ openSMILE model not available, using default acoustic features")
+        loudness = 0.0
+        pitch_mean = 0.0
+        pitch_variance = 0.0
+        jitter = 0.0
+        shimmer = 0.0
+    else:
+        features = smile.process_file(audio_file)
 
-    def get_feature(df, name_candidates, default=0.0):
-        for name in name_candidates:
-            if name in df.columns:
-                return float(df[name].iloc[0])
-        return default
+        def get_feature(df, name_candidates, default=0.0):
+            for name in name_candidates:
+                if name in df.columns:
+                    return float(df[name].iloc[0])
+            return default
 
-    loudness = get_feature(
-        features,
-        ["loudness_sma3_amean", "loudness_sma3_mean"]
-    )
+        loudness = get_feature(
+            features,
+            ["loudness_sma3_amean", "loudness_sma3_mean"]
+        )
 
-    pitch_mean = get_feature(
-        features,
-        ["F0semitoneFrom27.5Hz_sma3nz_amean"]
-    )
+        pitch_mean = get_feature(
+            features,
+            ["F0semitoneFrom27.5Hz_sma3nz_amean"]
+        )
 
-    pitch_variance = get_feature(
-        features,
-        ["F0semitoneFrom27.5Hz_sma3nz_stddevNorm"]
-    )
+        pitch_variance = get_feature(
+            features,
+            ["F0semitoneFrom27.5Hz_sma3nz_stddevNorm"]
+        )
 
-    jitter = get_feature(
-        features,
-        ["jitterLocal_sma3nz_amean"]
-    )
+        jitter = get_feature(
+            features,
+            ["jitterLocal_sma3nz_amean"]
+        )
 
-    shimmer = get_feature(
-        features,
-        ["shimmerLocaldB_sma3nz_amean"]
-    )
+        shimmer = get_feature(
+            features,
+            ["shimmerLocaldB_sma3nz_amean"]
+        )
 
 
     # -----------------------

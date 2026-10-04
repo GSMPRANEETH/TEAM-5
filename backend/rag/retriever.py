@@ -43,20 +43,32 @@ class RAGRetriever:
         
         try:
             # Use in-memory client for speed and simplicity
-            self.client = chromadb.Client()
+            try:
+                self.client = chromadb.Client()
+            except Exception as e:
+                print(f"⚠️ Failed to initialize ChromaDB client: {e}")
+                self.client = None
             
-            # Get or create collection (uses default embedding function)
-            self.collection = self.client.get_or_create_collection(
-                name=COLLECTION_NAME,
-                metadata={"description": "Speech analysis knowledge base"}
-            )
-            
-            # Index documents if collection is empty
-            if self.collection.count() == 0:
-                self._index_documents()
-            
-            self._initialized = True
-            print(f"✅ ChromaDB initialized with {self.collection.count()} documents")
+            if self.client is not None:
+                try:
+                    # Get or create collection (uses default embedding function)
+                    self.collection = self.client.get_or_create_collection(
+                        name=COLLECTION_NAME,
+                        metadata={"description": "Speech analysis knowledge base"}
+                    )
+
+                    # Index documents if collection is empty
+                    if self.collection.count() == 0:
+                        self._index_documents()
+
+                    self._initialized = True
+                    print(f"✅ ChromaDB initialized with {self.collection.count()} documents")
+                except Exception as e:
+                    print(f"⚠️ ChromaDB setup failed: {e}")
+                    self._initialized = False
+            else:
+                print("⚠️ ChromaDB client not available, using fallback retrieval")
+                self._initialized = False
             
         except Exception as e:
             print(f"⚠️ ChromaDB setup failed: {e}")
