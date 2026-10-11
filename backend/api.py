@@ -8,6 +8,7 @@ import os
 import tempfile
 import logging
 from typing import Dict, Any
+from fastapi.staticfiles import StaticFiles
 
 from validators.file_validator import validate_audio_file
 from record_audio import record_audio
@@ -194,3 +195,7 @@ async def analyze_video(file: UploadFile = File(...)) -> Dict[str, Any]:
                 logger.debug(f"Cleaned up temporary video file: {video_path}")
             except Exception as e:
                 logger.warning(f"Failed to cleanup video file {video_path}: {e}")
+
+
+# Serve frontend static files
+app.mount("/", StaticFiles(directory="frontend_dist", html=True), name="frontend")
